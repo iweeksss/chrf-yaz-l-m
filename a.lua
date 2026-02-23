@@ -6,13 +6,7 @@ function CHRFLib:CreateWindow(hubName)
     local isClosed = false
     
     local TweenService = game:GetService("TweenService")
-    local Lighting = game:GetService("Lighting")
     
-    -- Blur Efekti
-    local MenuBlur = Instance.new("BlurEffect", Lighting)
-    MenuBlur.Name = "CHRF_Blur"
-    MenuBlur.Size = 0
-
     -- Renk Paleti (Siyah / Bordo Teması)
     local Colors = {
         Background = Color3.fromRGB(15, 12, 12),
@@ -30,7 +24,71 @@ function CHRFLib:CreateWindow(hubName)
     ScreenGui.Parent = game.CoreGui
     ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 
-    -- [[ BİLDİRİM (NOTIFICATION) SİSTEMİ ]]
+    -- [[ AKTİF MODLAR PANELİ (YENİ) ]]
+    local ActiveModsFrame = Instance.new("Frame", ScreenGui)
+    ActiveModsFrame.BackgroundColor3 = Color3.fromRGB(10, 8, 8)
+    ActiveModsFrame.BackgroundTransparency = 0.4
+    ActiveModsFrame.Position = UDim2.new(0, 10, 0.4, 0)
+    ActiveModsFrame.Size = UDim2.new(0, 150, 0, 30)
+    Instance.new("UICorner", ActiveModsFrame).CornerRadius = UDim.new(0, 6)
+    Instance.new("UIStroke", ActiveModsFrame).Color = Colors.Stroke
+    
+    local ActiveTitle = Instance.new("TextLabel", ActiveModsFrame)
+    ActiveTitle.BackgroundTransparency = 1
+    ActiveTitle.Size = UDim2.new(1, 0, 0, 30)
+    ActiveTitle.Font = Enum.Font.GothamBold
+    ActiveTitle.Text = "AKTİF MODLAR"
+    ActiveTitle.TextColor3 = Colors.Accent
+    ActiveTitle.TextSize = 12
+    
+    local ActiveList = Instance.new("UIListLayout", ActiveModsFrame)
+    ActiveList.SortOrder = Enum.SortOrder.LayoutOrder
+    ActiveList.Padding = UDim.new(0, 2)
+    
+    local amDrag, amPos, amStart
+    ActiveModsFrame.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 then
+            amDrag = true
+            amPos = input.Position
+            amStart = ActiveModsFrame.Position
+        end
+    end)
+    game:GetService("UserInputService").InputChanged:Connect(function(input)
+        if amDrag and input.UserInputType == Enum.UserInputType.MouseMovement then
+            local delta = input.Position - amPos
+            ActiveModsFrame.Position = UDim2.new(amStart.X.Scale, amStart.X.Offset + delta.X, amStart.Y.Scale, amStart.Y.Offset + delta.Y)
+        end
+    end)
+    game:GetService("UserInputService").InputEnded:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 then amDrag = false end
+    end)
+
+    local activeMods = {}
+    function CHRFLib:SetModState(modName, isActive)
+        if isActive then
+            if not activeMods[modName] then
+                local lbl = Instance.new("TextLabel", ActiveModsFrame)
+                lbl.BackgroundTransparency = 1
+                lbl.Size = UDim2.new(1, -10, 0, 20)
+                lbl.Position = UDim2.new(0, 10, 0, 0)
+                lbl.Font = Enum.Font.GothamSemibold
+                lbl.Text = "• " .. modName
+                lbl.TextColor3 = Colors.TextMain
+                lbl.TextSize = 11
+                lbl.TextXAlignment = Enum.TextXAlignment.Left
+                activeMods[modName] = lbl
+                ActiveModsFrame.Size = UDim2.new(0, 150, 0, 30 + (ActiveList.AbsoluteContentSize.Y))
+            end
+        else
+            if activeMods[modName] then
+                activeMods[modName]:Destroy()
+                activeMods[modName] = nil
+                ActiveModsFrame.Size = UDim2.new(0, 150, 0, 30 + (ActiveList.AbsoluteContentSize.Y))
+            end
+        end
+    end
+
+    -- [[ BİLDİRİM SİSTEMİ ]]
     local NotifContainer = Instance.new("Frame", ScreenGui)
     NotifContainer.Name = "NotifContainer"
     NotifContainer.BackgroundTransparency = 1
@@ -49,7 +107,7 @@ function CHRFLib:CreateWindow(hubName)
 
         local notif = Instance.new("Frame", NotifContainer)
         notif.BackgroundColor3 = Colors.ElementBg
-        notif.Size = UDim2.new(1, 50, 0, 60) -- Başlangıçta ekran dışı
+        notif.Size = UDim2.new(1, 50, 0, 60)
         notif.BackgroundTransparency = 1
         Instance.new("UICorner", notif).CornerRadius = UDim.new(0, 6)
         local nStroke = Instance.new("UIStroke", notif)
@@ -79,14 +137,12 @@ function CHRFLib:CreateWindow(hubName)
         nContent.TextWrapped = true
         nContent.TextTransparency = 1
 
-        -- Giriş Animasyonu
         TweenService:Create(notif, TweenInfo.new(0.4, Enum.EasingStyle.Quint), {BackgroundTransparency = 0}):Play()
         TweenService:Create(nStroke, TweenInfo.new(0.4), {Transparency = 0}):Play()
         TweenService:Create(nTitle, TweenInfo.new(0.4), {TextTransparency = 0}):Play()
         TweenService:Create(nContent, TweenInfo.new(0.4), {TextTransparency = 0}):Play()
         
         task.delay(time, function()
-            -- Çıkış Animasyonu
             local tOut = TweenService:Create(notif, TweenInfo.new(0.4, Enum.EasingStyle.Quint), {BackgroundTransparency = 1})
             TweenService:Create(nStroke, TweenInfo.new(0.4), {Transparency = 1}):Play()
             TweenService:Create(nTitle, TweenInfo.new(0.4), {TextTransparency = 1}):Play()
@@ -151,6 +207,26 @@ function CHRFLib:CreateWindow(hubName)
     MainWhiteFrame.Size = UDim2.new(0, 0, 0, 0)
     MainWhiteFrame.Visible = false 
     Instance.new("UICorner", MainWhiteFrame).CornerRadius = UDim.new(0, 8)
+    
+    -- GÖLGE EFEKTİ
+    local Shadow = Instance.new("ImageLabel", MainWhiteFrame)
+    Shadow.BackgroundTransparency = 1
+    Shadow.Position = UDim2.new(0, -15, 0, -15)
+    Shadow.Size = UDim2.new(1, 30, 1, 30)
+    Shadow.ZIndex = -5
+    Shadow.Image = "rbxassetid://1316045217"
+    Shadow.ImageColor3 = Color3.new(0, 0, 0)
+    Shadow.ImageTransparency = 0.4
+    Shadow.ScaleType = Enum.ScaleType.Slice
+    Shadow.SliceCenter = Rect.new(10, 10, 118, 118)
+
+    -- GRADIENT EFEKTİ
+    local MainGradient = Instance.new("UIGradient", MainWhiteFrame)
+    MainGradient.Color = ColorSequence.new{
+        ColorSequenceKeypoint.new(0, Colors.Accent),
+        ColorSequenceKeypoint.new(1, Color3.fromRGB(80, 10, 20))
+    }
+    MainGradient.Rotation = 45
 
     local MainWhiteFrame_2 = Instance.new("Frame", MainWhiteFrame)
     MainWhiteFrame_2.BackgroundColor3 = Colors.Background
@@ -159,8 +235,31 @@ function CHRFLib:CreateWindow(hubName)
     MainWhiteFrame_2.Size = UDim2.new(1, -4, 1, -4)
     Instance.new("UICorner", MainWhiteFrame_2).CornerRadius = UDim.new(0, 6)
 
+    -- TOOLTIP (BİLGİ BALONCUĞU) SİSTEMİ
+    local TooltipLabel = Instance.new("TextLabel", MainWhiteFrame_2)
+    TooltipLabel.BackgroundColor3 = Colors.Accent
+    TooltipLabel.Size = UDim2.new(1, -135, 0, 25)
+    TooltipLabel.Position = UDim2.new(0, 130, 1, -30)
+    TooltipLabel.Font = Enum.Font.GothamSemibold
+    TooltipLabel.TextColor3 = Colors.TextMain
+    TooltipLabel.TextSize = 12
+    TooltipLabel.Text = ""
+    TooltipLabel.TextTransparency = 1
+    TooltipLabel.BackgroundTransparency = 1
+    TooltipLabel.ZIndex = 10
+    Instance.new("UICorner", TooltipLabel).CornerRadius = UDim.new(0, 4)
+
+    local function ShowTooltip(text)
+        if text and text ~= "" then
+            TooltipLabel.Text = text
+            TweenService:Create(TooltipLabel, TweenInfo.new(0.2), {TextTransparency = 0, BackgroundTransparency = 0.1}):Play()
+        end
+    end
+    local function HideTooltip()
+        TweenService:Create(TooltipLabel, TweenInfo.new(0.2), {TextTransparency = 1, BackgroundTransparency = 1}):Play()
+    end
+
     task.spawn(function()
-        TweenService:Create(MenuBlur, TweenInfo.new(0.5), {Size = 15}):Play()
         local t1 = TweenService:Create(IntroFrame, TweenInfo.new(0.5, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {Size = UDim2.new(0, 480, 0, 140)})
         TweenService:Create(IntroStroke, TweenInfo.new(0.5), {Transparency = 0}):Play()
         t1:Play()
@@ -208,6 +307,12 @@ function CHRFLib:CreateWindow(hubName)
     header.Position = UDim2.new(0, 130, 0, 5)
     header.Size = UDim2.new(1, -135, 0, 40)
     Instance.new("UICorner", header).CornerRadius = UDim.new(0, 6)
+    
+    local HeaderGradient = Instance.new("UIGradient", header)
+    HeaderGradient.Color = ColorSequence.new{
+        ColorSequenceKeypoint.new(0, Colors.Accent),
+        ColorSequenceKeypoint.new(1, Color3.fromRGB(80, 10, 20))
+    }
 
     local libTitle = Instance.new("TextLabel", header)
     libTitle.BackgroundTransparency = 1
@@ -345,7 +450,6 @@ function CHRFLib:CreateWindow(hubName)
                 MainWhiteFrame:TweenSize(startSize, "Out", "Quint", 0.3)
                 MinimizedPanel.Visible = false
                 MainWhiteFrame_2.Visible = true
-                TweenService:Create(MenuBlur, TweenInfo.new(0.3), {Size = 15}):Play()
             end
             isDraggingMin = false
             minDragStart = nil
@@ -383,13 +487,12 @@ function CHRFLib:CreateWindow(hubName)
         end
     end)
 
+    -- FARE (MOUSE) SERBEST BIRAKMA MANTIĞI YENİ
     UserInputService.InputBegan:Connect(function(input, gameProcessed)
         if not gameProcessed and input.KeyCode == Enum.KeyCode.K then
             ScreenGui.Enabled = not ScreenGui.Enabled
-            if ScreenGui.Enabled and not isClosed then
-                TweenService:Create(MenuBlur, TweenInfo.new(0.3), {Size = 15}):Play()
-            else
-                TweenService:Create(MenuBlur, TweenInfo.new(0.3), {Size = 0}):Play()
+            if ScreenGui.Enabled then
+                UserInputService.MouseIconEnabled = true 
             end
         end
     end)
@@ -401,7 +504,6 @@ function CHRFLib:CreateWindow(hubName)
             MainWhiteFrame_2.Visible = false
             MinimizedPanel.Visible = true
             MainWhiteFrame:TweenSize(UDim2.new(0, 160, 0, 40), "In", "Quint", 0.3)
-            TweenService:Create(MenuBlur, TweenInfo.new(0.3), {Size = 0}):Play()
         end
     end)
 
@@ -471,19 +573,21 @@ function CHRFLib:CreateWindow(hubName)
 
         local ElementHandler = {}
 
-        local function CreateBaseFrame(height)
+        local function CreateBaseFrame(height, desc)
             local frame = Instance.new("Frame")
             frame.BackgroundColor3 = Colors.ElementBg
             frame.Size = UDim2.new(1, 0, 0, height)
             Instance.new("UICorner", frame).CornerRadius = UDim.new(0, 5)
-            local stroke = Instance.new("UIStroke", frame)
-            stroke.Color = Colors.Stroke
-            stroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+            Instance.new("UIStroke", frame).Color = Colors.Stroke
+            if desc then
+                frame.MouseEnter:Connect(function() ShowTooltip(desc) end)
+                frame.MouseLeave:Connect(function() HideTooltip() end)
+            end
             return frame
         end
 
         function ElementHandler:TextLabel(labelText)
-            local frame = CreateBaseFrame(35)
+            local frame = CreateBaseFrame(30)
             frame.Parent = newPage
             local label = Instance.new("TextLabel", frame)
             label.BackgroundTransparency = 1
@@ -497,8 +601,8 @@ function CHRFLib:CreateWindow(hubName)
             AllElements[frame] = {Name = labelText, OriginalParent = newPage}
         end
 
-        function ElementHandler:TextButton(buttonText, buttonInfo, callback)
-            local frame = CreateBaseFrame(40)
+        function ElementHandler:TextButton(buttonText, buttonInfo, callback, desc)
+            local frame = CreateBaseFrame(40, desc)
             frame.Parent = newPage
             local info = Instance.new("TextLabel", frame)
             info.BackgroundTransparency = 1
@@ -522,8 +626,8 @@ function CHRFLib:CreateWindow(hubName)
             AllElements[frame] = {Name = buttonText, OriginalParent = newPage}
         end
 
-        function ElementHandler:Toggle(togInfo, callback, default)
-            local frame = CreateBaseFrame(40)
+        function ElementHandler:Toggle(togInfo, callback, default, desc)
+            local frame = CreateBaseFrame(40, desc)
             frame.Parent = newPage
             local info = Instance.new("TextLabel", frame)
             info.BackgroundTransparency = 1
@@ -540,8 +644,7 @@ function CHRFLib:CreateWindow(hubName)
             toggleBtn.Size = UDim2.new(0, 40, 0, 24)
             toggleBtn.Text = ""
             Instance.new("UICorner", toggleBtn).CornerRadius = UDim.new(0, 12)
-            local stroke = Instance.new("UIStroke", toggleBtn)
-            stroke.Color = Colors.Stroke
+            Instance.new("UIStroke", toggleBtn).Color = Colors.Stroke
             local indicator = Instance.new("Frame", toggleBtn)
             indicator.BackgroundColor3 = default and Colors.TextMain or Colors.TextMuted
             indicator.Size = UDim2.new(0, 16, 0, 16)
@@ -549,9 +652,12 @@ function CHRFLib:CreateWindow(hubName)
             Instance.new("UICorner", indicator).CornerRadius = UDim.new(1, 0)
 
             local toggled = default or false
+            if toggled then CHRFLib:SetModState(togInfo, true) end
+            
             toggleBtn.MouseButton1Click:Connect(function()
                 toggled = not toggled
                 callback(toggled)
+                CHRFLib:SetModState(togInfo, toggled)
                 if toggled then
                     TweenService:Create(toggleBtn, TweenInfo.new(0.2), {BackgroundColor3 = Colors.Accent}):Play()
                     TweenService:Create(indicator, TweenInfo.new(0.2), {Position = UDim2.new(1, -20, 0.5, -8), BackgroundColor3 = Colors.TextMain}):Play()
@@ -563,8 +669,8 @@ function CHRFLib:CreateWindow(hubName)
             AllElements[frame] = {Name = togInfo, OriginalParent = newPage}
         end
 
-        function ElementHandler:Slider(sliderInfo, min, max, callback, default)
-            local frame = CreateBaseFrame(50)
+        function ElementHandler:Slider(sliderInfo, min, max, callback, default, desc)
+            local frame = CreateBaseFrame(50, desc)
             frame.Parent = newPage
             local info = Instance.new("TextLabel", frame)
             info.BackgroundTransparency = 1
@@ -590,13 +696,11 @@ function CHRFLib:CreateWindow(hubName)
             sliderBg.Size = UDim2.new(1, -20, 0, 8)
             sliderBg.Text = ""
             Instance.new("UICorner", sliderBg).CornerRadius = UDim.new(1, 0)
-            
             local defScale = ((default or min) - min) / (max - min)
             local sliderFill = Instance.new("Frame", sliderBg)
             sliderFill.BackgroundColor3 = Colors.Accent
             sliderFill.Size = UDim2.new(defScale, 0, 1, 0)
             Instance.new("UICorner", sliderFill).CornerRadius = UDim.new(1, 0)
-
             local mouse = game.Players.LocalPlayer:GetMouse()
             local uis = game:GetService("UserInputService")
             local isSliding = false
@@ -611,10 +715,7 @@ function CHRFLib:CreateWindow(hubName)
             end
 
             sliderBg.InputBegan:Connect(function(input)
-                if input.UserInputType == Enum.UserInputType.MouseButton1 then
-                    isSliding = true
-                    update(input)
-                end
+                if input.UserInputType == Enum.UserInputType.MouseButton1 then isSliding = true; update(input) end
             end)
             uis.InputEnded:Connect(function(input)
                 if input.UserInputType == Enum.UserInputType.MouseButton1 then isSliding = false end
@@ -625,8 +726,8 @@ function CHRFLib:CreateWindow(hubName)
             AllElements[frame] = {Name = sliderInfo, OriginalParent = newPage}
         end
 
-        function ElementHandler:Dropdown(dInfo, list, callback, default)
-            local frame = CreateBaseFrame(40)
+        function ElementHandler:Dropdown(dInfo, list, callback, default, desc)
+            local frame = CreateBaseFrame(40, desc)
             frame.Parent = newPage
             frame.ClipsDescendants = true
             local btn = Instance.new("TextButton", frame)
@@ -679,9 +780,8 @@ function CHRFLib:CreateWindow(hubName)
             AllElements[frame] = {Name = dInfo, OriginalParent = newPage}
         end
 
-        -- YENİ ÖZELLİK: COLOR PICKER (Hızlı RGB Seçici)
-        function ElementHandler:ColorPicker(pInfo, defaultColor, callback)
-            local frame = CreateBaseFrame(40)
+        function ElementHandler:ColorPicker(pInfo, defaultColor, callback, desc)
+            local frame = CreateBaseFrame(40, desc)
             frame.Parent = newPage
             frame.ClipsDescendants = true
             
@@ -704,11 +804,7 @@ function CHRFLib:CreateWindow(hubName)
             local isDropped = false
             btn.MouseButton1Click:Connect(function()
                 isDropped = not isDropped
-                if isDropped then
-                    TweenService:Create(frame, TweenInfo.new(0.2), {Size = UDim2.new(1, 0, 0, 130)}):Play()
-                else
-                    TweenService:Create(frame, TweenInfo.new(0.2), {Size = UDim2.new(1, 0, 0, 40)}):Play()
-                end
+                TweenService:Create(frame, TweenInfo.new(0.2), {Size = UDim2.new(1, 0, 0, isDropped and 130 or 40)}):Play()
             end)
 
             local function createColorSlider(yPos, colorName, maxC)
@@ -737,19 +833,13 @@ function CHRFLib:CreateWindow(hubName)
             local rBg, rFill = createColorSlider(50, "R", Color3.fromRGB(255, 50, 50))
             local gBg, gFill = createColorSlider(75, "G", Color3.fromRGB(50, 255, 50))
             local bBg, bFill = createColorSlider(100, "B", Color3.fromRGB(50, 100, 255))
-
             local currentColor = defaultColor or Color3.new(1,1,1)
             local uis = game:GetService("UserInputService")
-            local mouse = game.Players.LocalPlayer:GetMouse()
 
             local function handleSlider(bg, fill, colorIndex)
                 local isS = false
-                bg.InputBegan:Connect(function(inp)
-                    if inp.UserInputType == Enum.UserInputType.MouseButton1 then isS = true end
-                end)
-                uis.InputEnded:Connect(function(inp)
-                    if inp.UserInputType == Enum.UserInputType.MouseButton1 then isS = false end
-                end)
+                bg.InputBegan:Connect(function(inp) if inp.UserInputType == Enum.UserInputType.MouseButton1 then isS = true end end)
+                uis.InputEnded:Connect(function(inp) if inp.UserInputType == Enum.UserInputType.MouseButton1 then isS = false end end)
                 uis.InputChanged:Connect(function(inp)
                     if isS and inp.UserInputType == Enum.UserInputType.MouseMovement then
                         local scale = math.clamp((inp.Position.X - bg.AbsolutePosition.X) / bg.AbsoluteSize.X, 0, 1)
@@ -765,7 +855,6 @@ function CHRFLib:CreateWindow(hubName)
             handleSlider(rBg, rFill, 1)
             handleSlider(gBg, gFill, 2)
             handleSlider(bBg, bFill, 3)
-
             AllElements[frame] = {Name = pInfo, OriginalParent = newPage}
         end
 
