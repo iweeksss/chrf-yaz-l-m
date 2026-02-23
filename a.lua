@@ -24,7 +24,7 @@ function CHRFLib:CreateWindow(hubName)
     ScreenGui.Parent = game.CoreGui
     ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 
-    -- [[ PREMIUM INTRO ARAYÜZÜ ]]
+    -- [[ PREMIUM INTRO ARAYÜZÜ (BÜYÜTÜLMÜŞ VE DÜZENLENMİŞ) ]]
     local IntroFrame = Instance.new("Frame")
     IntroFrame.Name = "IntroFrame"
     IntroFrame.Parent = ScreenGui
@@ -42,27 +42,28 @@ function CHRFLib:CreateWindow(hubName)
 
     local IntroTitle = Instance.new("TextLabel", IntroFrame)
     IntroTitle.BackgroundTransparency = 1
-    IntroTitle.Size = UDim2.new(1, 0, 0, 60)
-    IntroTitle.Position = UDim2.new(0, 0, 0, 10)
+    IntroTitle.Size = UDim2.new(1, -20, 0, 40)
+    IntroTitle.Position = UDim2.new(0, 10, 0, 20)
     IntroTitle.Font = Enum.Font.GothamBold
     IntroTitle.Text = hubName
     IntroTitle.TextColor3 = Colors.TextMain
-    IntroTitle.TextSize = 22
+    IntroTitle.TextSize = 18 -- Yazıların sığması için optimize edildi
+    IntroTitle.TextWrapped = true
 
     local IntroSub = Instance.new("TextLabel", IntroFrame)
     IntroSub.BackgroundTransparency = 1
     IntroSub.Size = UDim2.new(1, 0, 0, 20)
-    IntroSub.Position = UDim2.new(0, 0, 0, 45)
+    IntroSub.Position = UDim2.new(0, 0, 0, 65)
     IntroSub.Font = Enum.Font.GothamSemibold
     IntroSub.Text = "Premium Sürüm Yükleniyor..."
     IntroSub.TextColor3 = Colors.TextMuted
-    IntroSub.TextSize = 12
+    IntroSub.TextSize = 13
 
     local LoadBg = Instance.new("Frame", IntroFrame)
     LoadBg.BackgroundColor3 = Colors.ElementBg
-    LoadBg.Size = UDim2.new(0, 260, 0, 6)
+    LoadBg.Size = UDim2.new(0, 340, 0, 6) -- Bar daha geniş
     LoadBg.AnchorPoint = Vector2.new(0.5, 0)
-    LoadBg.Position = UDim2.new(0.5, 0, 1, -25)
+    LoadBg.Position = UDim2.new(0.5, 0, 1, -30)
     Instance.new("UICorner", LoadBg).CornerRadius = UDim.new(1, 0)
 
     local LoadFill = Instance.new("Frame", LoadBg)
@@ -76,7 +77,6 @@ function CHRFLib:CreateWindow(hubName)
     MainWhiteFrame.Parent = ScreenGui
     MainWhiteFrame.BackgroundColor3 = Colors.Accent
     MainWhiteFrame.BorderSizePixel = 0
-    -- Başlangıçta merkezde ve küçük
     MainWhiteFrame.Position = UDim2.new(0.5, 0, 0.5, 0)
     MainWhiteFrame.Size = UDim2.new(0, 0, 0, 0)
     MainWhiteFrame.Visible = false 
@@ -97,8 +97,8 @@ function CHRFLib:CreateWindow(hubName)
 
     -- [[ INTRO ANİMASYON SÜRECİ ]]
     task.spawn(function()
-        -- 1. Intro Kutusunu Ekrana Büyüterek Getir
-        local t1 = TweenService:Create(IntroFrame, TweenInfo.new(0.5, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {Size = UDim2.new(0, 300, 0, 120)})
+        -- 1. Intro Kutusunu Ekrana Büyüterek Getir (Kutu boyutu 420x140 yapıldı)
+        local t1 = TweenService:Create(IntroFrame, TweenInfo.new(0.5, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {Size = UDim2.new(0, 420, 0, 140)})
         TweenService:Create(IntroStroke, TweenInfo.new(0.5), {Transparency = 0}):Play()
         t1:Play()
         t1.Completed:Wait()
@@ -314,6 +314,7 @@ function CHRFLib:CreateWindow(hubName)
     MinimizedPanel.InputEnded:Connect(function(input)
         if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
             if not isDraggingMin then
+                -- Büyütme Olayı
                 isClosed = false
                 MainWhiteFrame:TweenSize(startSize, "Out", "Quint", 0.3)
                 MinimizedPanel.Visible = false
