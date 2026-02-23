@@ -24,7 +24,7 @@ function CHRFLib:CreateWindow(hubName)
     ScreenGui.Parent = game.CoreGui
     ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 
-    -- [[ PREMIUM INTRO ARAYÜZÜ (BÜYÜTÜLMÜŞ VE DÜZENLENMİŞ) ]]
+    -- [[ PREMIUM INTRO ARAYÜZÜ (KIRPILMA SORUNU ÇÖZÜLDÜ) ]]
     local IntroFrame = Instance.new("Frame")
     IntroFrame.Name = "IntroFrame"
     IntroFrame.Parent = ScreenGui
@@ -38,7 +38,7 @@ function CHRFLib:CreateWindow(hubName)
     local IntroStroke = Instance.new("UIStroke", IntroFrame)
     IntroStroke.Color = Colors.Accent
     IntroStroke.Thickness = 2
-    IntroStroke.Transparency = 1 -- Animasyonla açılacak
+    IntroStroke.Transparency = 1 
 
     local IntroTitle = Instance.new("TextLabel", IntroFrame)
     IntroTitle.BackgroundTransparency = 1
@@ -47,8 +47,12 @@ function CHRFLib:CreateWindow(hubName)
     IntroTitle.Font = Enum.Font.GothamBold
     IntroTitle.Text = hubName
     IntroTitle.TextColor3 = Colors.TextMain
-    IntroTitle.TextSize = 18 -- Yazıların sığması için optimize edildi
-    IntroTitle.TextWrapped = true
+    IntroTitle.TextScaled = true -- ASIL ÇÖZÜM: Yazı boyutu kutuya göre otomatik şekillenir
+    
+    -- Yazının çok aşırı büyümesini engellemek için sınırlandırıcı
+    local TitleConstraint = Instance.new("UITextSizeConstraint", IntroTitle)
+    TitleConstraint.MaxTextSize = 20
+    TitleConstraint.MinTextSize = 10
 
     local IntroSub = Instance.new("TextLabel", IntroFrame)
     IntroSub.BackgroundTransparency = 1
@@ -61,7 +65,7 @@ function CHRFLib:CreateWindow(hubName)
 
     local LoadBg = Instance.new("Frame", IntroFrame)
     LoadBg.BackgroundColor3 = Colors.ElementBg
-    LoadBg.Size = UDim2.new(0, 340, 0, 6) -- Bar daha geniş
+    LoadBg.Size = UDim2.new(0, 400, 0, 6) -- Bar daha estetik olması için genişletildi
     LoadBg.AnchorPoint = Vector2.new(0.5, 0)
     LoadBg.Position = UDim2.new(0.5, 0, 1, -30)
     Instance.new("UICorner", LoadBg).CornerRadius = UDim.new(1, 0)
@@ -97,8 +101,8 @@ function CHRFLib:CreateWindow(hubName)
 
     -- [[ INTRO ANİMASYON SÜRECİ ]]
     task.spawn(function()
-        -- 1. Intro Kutusunu Ekrana Büyüterek Getir (Kutu boyutu 420x140 yapıldı)
-        local t1 = TweenService:Create(IntroFrame, TweenInfo.new(0.5, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {Size = UDim2.new(0, 420, 0, 140)})
+        -- 1. Intro Kutusunu Ekrana Büyüterek Getir (Genişlik 480 yapıldı)
+        local t1 = TweenService:Create(IntroFrame, TweenInfo.new(0.5, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {Size = UDim2.new(0, 480, 0, 140)})
         TweenService:Create(IntroStroke, TweenInfo.new(0.5), {Transparency = 0}):Play()
         t1:Play()
         t1.Completed:Wait()
