@@ -1,128 +1,26 @@
-UDim2.new(1, -10, 0, 20)
-                lbl.Position = UDim2.new(0, 10, 0, 0)
-                lbl.Font = Enum.Font.GothamSemibold
-                lbl.Text = "• " .. modName
-                lbl.TextColor3 = Colors.TextMain
-                lbl.TextSize = 11
-                lbl.TextXAlignment = Enum.TextXAlignment.Left
-                activeMods[modName] = lbl
-                ActiveModsFrame.Size = UDim2.new(0, 150, 0, 30 + (ActiveList.AbsoluteContentSize.Y))
-            end
-        else
-            if activeMods[modName] then
-                activeMods[modName]:Destroy()
-                activeMods[modName] = nil
-                ActiveModsFrame.Size = UDim2.new(0, 150, 0, 30 + (ActiveList.AbsoluteContentSize.Y))
-            end
-        end
-    end
+local CHRFLib = {}
+local AllElements = {} 
 
-    -- [[ WATERMARK SİSTEMİ (FPS & PİNG) (GİZLENEBİLİR VE SÜRÜKLENEBİLİR) ]]
-    local WatermarkLabel = Instance.new("TextLabel", ScreenGui)
-    WatermarkLabel.Name = "CHRF_Watermark"
-    WatermarkLabel.BackgroundTransparency = 1 -- Arka plan gizlendi
-    WatermarkLabel.Position = UDim2.new(1, -220, 0, 10)
-    WatermarkLabel.Size = UDim2.new(0, 210, 0, 25)
-    WatermarkLabel.Font = Enum.Font.GothamBold
-    WatermarkLabel.TextColor3 = Colors.Accent
-    WatermarkLabel.TextSize = 13
-    WatermarkLabel.TextXAlignment = Enum.TextXAlignment.Right
-    local wStroke = Instance.new("UIStroke", WatermarkLabel)
-    wStroke.Color = Color3.fromRGB(0,0,0)
-    wStroke.Thickness = 1.5
+function CHRFLib:CreateWindow(hubName)
+    hubName = hubName or "CHRF YAZILIM"
+    local isClosed = false
+    local TweenService = game:GetService("TweenService")
+    
+    local Colors = {
+        Background = Color3.fromRGB(15, 12, 12),
+        TabMenu = Color3.fromRGB(20, 16, 16),
+        ElementBg = Color3.fromRGB(25, 20, 20),
+        Accent = Color3.fromRGB(138, 15, 34),
+        TextMain = Color3.fromRGB(255, 255, 255),
+        TextMuted = Color3.fromRGB(170, 160, 160),
+        Stroke = Color3.fromRGB(45, 30, 30)
+    }
 
-    local wmDrag, wmPos, wmStart
-    WatermarkLabel.InputBegan:Connect(function(input)
-        if CHRFLib.CanDragIndicators and input.UserInputType == Enum.UserInputType.MouseButton1 then
-            wmDrag = true
-            wmPos = input.Position
-            wmStart = WatermarkLabel.Position
-        end
-    end)
-    game:GetService("UserInputService").InputChanged:Connect(function(input)
-        if wmDrag and input.UserInputType == Enum.UserInputType.MouseMovement then
-            local delta = input.Position - wmPos
-            WatermarkLabel.Position = UDim2.new(wmStart.X.Scale, wmStart.X.Offset + delta.X, wmStart.Y.Scale, wmStart.Y.Offset + delta.Y)
-        end
-    end)
-    game:GetService("UserInputService").InputEnded:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseButton1 then wmDrag = false end
-    end)
-
-    function CHRFLib:UpdateWatermark(text)
-        WatermarkLabel.Text = text
-    end
-    function CHRFLib:SetWatermarkVisible(state)
-        WatermarkLabel.Visible = state
-    end
-    function CHRFLib:SetActiveModsVisible(state)
-        ActiveModsFrame.Visible = state
-    end
-
-    -- [[ BİLDİRİM SİSTEMİ ]]
-    local NotifContainer = Instance.new("Frame", ScreenGui)
-    NotifContainer.Name = "NotifContainer"
-    NotifContainer.BackgroundTransparency = 1
-    NotifContainer.Position = UDim2.new(1, -260, 1, -20)
-    NotifContainer.Size = UDim2.new(0, 250, 1, 0)
-    NotifContainer.AnchorPoint = Vector2.new(0, 1)
-    local NotifList = Instance.new("UIListLayout", NotifContainer)
-    NotifList.SortOrder = Enum.SortOrder.LayoutOrder
-    NotifList.VerticalAlignment = Enum.VerticalAlignment.Bottom
-    NotifList.Padding = UDim.new(0, 10)
-
-    function CHRFLib:MakeNotification(cfg)
-        local title = cfg.Title or "Bildirim"
-        local content = cfg.Content or "İçerik"
-        local time = cfg.Time or 3
-
-        local notif = Instance.new("Frame", NotifContainer)
-        notif.BackgroundColor3 = Colors.ElementBg
-        notif.Size = UDim2.new(1, 50, 0, 60)
-        notif.BackgroundTransparency = 1
-        Instance.new("UICorner", notif).CornerRadius = UDim.new(0, 6)
-        local nStroke = Instance.new("UIStroke", notif)
-        nStroke.Color = Colors.Accent
-        nStroke.Transparency = 1
-
-        local nTitle = Instance.new("TextLabel", notif)
-        nTitle.BackgroundTransparency = 1
-        nTitle.Position = UDim2.new(0, 10, 0, 5)
-        nTitle.Size = UDim2.new(1, -20, 0, 20)
-        nTitle.Font = Enum.Font.GothamBold
-        nTitle.Text = title
-        nTitle.TextColor3 = Colors.Accent
-        nTitle.TextSize = 14
-        nTitle.TextXAlignment = Enum.TextXAlignment.Left
-        nTitle.TextTransparency = 1
-
-        local nContent = Instance.new("TextLabel", notif)
-        nContent.BackgroundTransparency = 1
-        nContent.Position = UDim2.new(0, 10, 0, 25)
-        nContent.Size = UDim2.new(1, -20, 0, 30)
-        nContent.Font = Enum.Font.GothamSemibold
-        nContent.Text = content
-        nContent.TextColor3 = Colors.TextMain
-        nContent.TextSize = 12
-        nContent.TextXAlignment = Enum.TextXAlignment.Left
-        nContent.TextWrapped = true
-        nContent.TextTransparency = 1
-
-        TweenService:Create(notif, TweenInfo.new(0.4, Enum.EasingStyle.Quint), {BackgroundTransparency = 0}):Play()
-        TweenService:Create(nStroke, TweenInfo.new(0.4), {Transparency = 0}):Play()
-        TweenService:Create(nTitle, TweenInfo.new(0.4), {TextTransparency = 0}):Play()
-        TweenService:Create(nContent, TweenInfo.new(0.4), {TextTransparency = 0}):Play()
-        
-        task.delay(time, function()
-            local tOut = TweenService:Create(notif, TweenInfo.new(0.4, Enum.EasingStyle.Quint), {BackgroundTransparency = 1})
-            TweenService:Create(nStroke, TweenInfo.new(0.4), {Transparency = 1}):Play()
-            TweenService:Create(nTitle, TweenInfo.new(0.4), {TextTransparency = 1}):Play()
-            TweenService:Create(nContent, TweenInfo.new(0.4), {TextTransparency = 1}):Play()
-            tOut:Play()
-            tOut.Completed:Wait()
-            notif:Destroy()
-        end)
-    end
+    local ScreenGui = Instance.new("ScreenGui")
+    ScreenGui.Name = "CHRF_Premium_UI"
+    ScreenGui.ResetOnSpawn = false
+    ScreenGui.Parent = game.CoreGui
+    ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 
     -- [[ PREMIUM INTRO ARAYÜZÜ ]]
     local IntroFrame = Instance.new("Frame", ScreenGui)
@@ -179,7 +77,6 @@ UDim2.new(1, -10, 0, 20)
     MainWhiteFrame.Visible = false 
     Instance.new("UICorner", MainWhiteFrame).CornerRadius = UDim.new(0, 8)
     
-    -- GÖLGE EFEKTİ
     local Shadow = Instance.new("ImageLabel", MainWhiteFrame)
     Shadow.BackgroundTransparency = 1
     Shadow.Position = UDim2.new(0, -15, 0, -15)
@@ -191,7 +88,6 @@ UDim2.new(1, -10, 0, 20)
     Shadow.ScaleType = Enum.ScaleType.Slice
     Shadow.SliceCenter = Rect.new(10, 10, 118, 118)
 
-    -- GRADIENT EFEKTİ
     local MainGradient = Instance.new("UIGradient", MainWhiteFrame)
     MainGradient.Color = ColorSequence.new{
         ColorSequenceKeypoint.new(0, Colors.Accent),
@@ -206,30 +102,75 @@ UDim2.new(1, -10, 0, 20)
     MainWhiteFrame_2.Size = UDim2.new(1, -4, 1, -4)
     Instance.new("UICorner", MainWhiteFrame_2).CornerRadius = UDim.new(0, 6)
 
-    -- TOOLTIP (BİLGİ BALONCUĞU) SİSTEMİ
-    local TooltipLabel = Instance.new("TextLabel", MainWhiteFrame_2)
-    TooltipLabel.BackgroundColor3 = Colors.Accent
-    TooltipLabel.Size = UDim2.new(1, -135, 0, 25)
-    TooltipLabel.Position = UDim2.new(0, 130, 1, -30)
-    TooltipLabel.Font = Enum.Font.GothamSemibold
-    TooltipLabel.TextColor3 = Colors.TextMain
-    TooltipLabel.TextSize = 12
-    TooltipLabel.Text = ""
-    TooltipLabel.TextTransparency = 1
-    TooltipLabel.BackgroundTransparency = 1
-    TooltipLabel.ZIndex = 10
-    Instance.new("UICorner", TooltipLabel).CornerRadius = UDim.new(0, 4)
+    -- [[ AKTİF MODLAR PANELİ ]]
+    local ActiveModsFrame = Instance.new("Frame", ScreenGui)
+    ActiveModsFrame.BackgroundTransparency = 1 
+    ActiveModsFrame.Position = UDim2.new(0, 10, 0.4, 0)
+    ActiveModsFrame.Size = UDim2.new(0, 150, 0, 30)
+    
+    local ActiveTitle = Instance.new("TextLabel", ActiveModsFrame)
+    ActiveTitle.BackgroundTransparency = 1
+    ActiveTitle.Size = UDim2.new(1, 0, 0, 30)
+    ActiveTitle.Font = Enum.Font.GothamBold
+    ActiveTitle.Text = "AKTİF MODLAR"
+    ActiveTitle.TextColor3 = Colors.Accent
+    ActiveTitle.TextSize = 12
+    ActiveTitle.TextXAlignment = Enum.TextXAlignment.Left
+    
+    local ActiveList = Instance.new("UIListLayout", ActiveModsFrame)
+    ActiveList.SortOrder = Enum.SortOrder.LayoutOrder
+    ActiveList.Padding = UDim.new(0, 2)
+    
+    CHRFLib.CanDragIndicators = false
+    
+    local amDrag, amPos, amStart
+    ActiveModsFrame.InputBegan:Connect(function(input)
+        if CHRFLib.CanDragIndicators and input.UserInputType == Enum.UserInputType.MouseButton1 then
+            amDrag = true
+            amPos = input.Position
+            amStart = ActiveModsFrame.Position
+        end
+    end)
+    game:GetService("UserInputService").InputChanged:Connect(function(input)
+        if amDrag and input.UserInputType == Enum.UserInputType.MouseMovement then
+            local delta = input.Position - amPos
+            ActiveModsFrame.Position = UDim2.new(amStart.X.Scale, amStart.X.Offset + delta.X, amStart.Y.Scale, amStart.Y.Offset + delta.Y)
+        end
+    end)
+    game:GetService("UserInputService").InputEnded:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 then amDrag = false end
+    end)
 
-    local function ShowTooltip(text)
-        if text and text ~= "" then
-            TooltipLabel.Text = text
-            TweenService:Create(TooltipLabel, TweenInfo.new(0.2), {TextTransparency = 0, BackgroundTransparency = 0.1}):Play()
+    local activeMods = {}
+    function CHRFLib:SetModState(modName, isActive)
+        if isActive then
+            if not activeMods[modName] then
+                local lbl = Instance.new("TextLabel", ActiveModsFrame)
+                lbl.BackgroundTransparency = 1
+                lbl.Size = UDim2.new(1, -10, 0, 20)
+                lbl.Position = UDim2.new(0, 10, 0, 0)
+                lbl.Font = Enum.Font.GothamSemibold
+                lbl.Text = "• " .. modName
+                lbl.TextColor3 = Colors.TextMain
+                lbl.TextSize = 11
+                lbl.TextXAlignment = Enum.TextXAlignment.Left
+                activeMods[modName] = lbl
+                ActiveModsFrame.Size = UDim2.new(0, 150, 0, 30 + (ActiveList.AbsoluteContentSize.Y))
+            end
+        else
+            if activeMods[modName] then
+                activeMods[modName]:Destroy()
+                activeMods[modName] = nil
+                ActiveModsFrame.Size = UDim2.new(0, 150, 0, 30 + (ActiveList.AbsoluteContentSize.Y))
+            end
         end
     end
-    local function HideTooltip()
-        TweenService:Create(TooltipLabel, TweenInfo.new(0.2), {TextTransparency = 1, BackgroundTransparency = 1}):Play()
+
+    function CHRFLib:SetActiveModsVisible(state)
+        ActiveModsFrame.Visible = state
     end
 
+    -- [[ INTRO ANİMASYONU BAŞLAT ]]
     task.spawn(function()
         local t1 = TweenService:Create(IntroFrame, TweenInfo.new(0.5, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {Size = UDim2.new(0, 480, 0, 140)})
         TweenService:Create(IntroStroke, TweenInfo.new(0.5), {Transparency = 0}):Play()
@@ -258,20 +199,40 @@ UDim2.new(1, -10, 0, 20)
         }):Play()
     end)
 
+    local TooltipLabel = Instance.new("TextLabel", MainWhiteFrame_2)
+    TooltipLabel.BackgroundColor3 = Colors.Accent
+    TooltipLabel.Size = UDim2.new(1, -135, 0, 25)
+    TooltipLabel.Position = UDim2.new(0, 130, 1, -30)
+    TooltipLabel.Font = Enum.Font.GothamSemibold
+    TooltipLabel.TextColor3 = Colors.TextMain
+    TooltipLabel.TextSize = 12
+    TooltipLabel.Text = ""
+    TooltipLabel.TextTransparency = 1
+    TooltipLabel.BackgroundTransparency = 1
+    TooltipLabel.ZIndex = 10
+    Instance.new("UICorner", TooltipLabel).CornerRadius = UDim.new(0, 4)
+
+    local function ShowTooltip(text)
+        if text and text ~= "" then
+            TooltipLabel.Text = text
+            TweenService:Create(TooltipLabel, TweenInfo.new(0.2), {TextTransparency = 0, BackgroundTransparency = 0.1}):Play()
+        end
+    end
+    local function HideTooltip()
+        TweenService:Create(TooltipLabel, TweenInfo.new(0.2), {TextTransparency = 1, BackgroundTransparency = 1}):Play()
+    end
+
     local tabFrame = Instance.new("Frame", MainWhiteFrame_2)
     tabFrame.BackgroundColor3 = Colors.TabMenu
     tabFrame.Position = UDim2.new(0, 5, 0, 5)
     tabFrame.Size = UDim2.new(0, 120, 1, -10)
     Instance.new("UICorner", tabFrame).CornerRadius = UDim.new(0, 6)
-    local tabStroke = Instance.new("UIStroke", tabFrame)
-    tabStroke.Color = Colors.Stroke
-    tabStroke.Thickness = 1
+    Instance.new("UIStroke", tabFrame).Color = Colors.Stroke
     local tabList = Instance.new("UIListLayout", tabFrame)
     tabList.HorizontalAlignment = Enum.HorizontalAlignment.Center
     tabList.SortOrder = Enum.SortOrder.LayoutOrder
     tabList.Padding = UDim.new(0, 5)
-    local tabPadd = Instance.new("UIPadding", tabFrame)
-    tabPadd.PaddingTop = UDim.new(0, 8)
+    Instance.new("UIPadding", tabFrame).PaddingTop = UDim.new(0, 8)
 
     local header = Instance.new("Frame", MainWhiteFrame_2)
     header.BackgroundColor3 = Colors.Accent
@@ -307,7 +268,7 @@ UDim2.new(1, -10, 0, 20)
     searchBox.Position = UDim2.new(1, -210, 0.5, -15)
     searchBox.Size = UDim2.new(0, 140, 0, 30)
     searchBox.Font = Enum.Font.GothamSemibold
-    searchBox.PlaceholderText = "Özellik Ara..."
+    searchBox.PlaceholderText = "Ara..."
     searchBox.Text = ""
     searchBox.TextColor3 = Colors.TextMain
     searchBox.TextSize = 13
@@ -458,7 +419,6 @@ UDim2.new(1, -10, 0, 20)
         end
     end)
 
-    -- FARE SERBEST BIRAKMA
     UserInputService.InputBegan:Connect(function(input, gameProcessed)
         if not gameProcessed and input.KeyCode == Enum.KeyCode.K then
             ScreenGui.Enabled = not ScreenGui.Enabled
