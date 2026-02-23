@@ -5,6 +5,8 @@ function CHRFLib:CreateWindow(hubName)
     hubName = hubName or "CHRF YAZILIM"
     local isClosed = false
     
+    local TweenService = game:GetService("TweenService")
+    
     -- Renk Paleti (Siyah / Bordo Teması)
     local Colors = {
         Background = Color3.fromRGB(15, 12, 12), -- Koyu Siyah/Hafif Bordo Tonu
@@ -22,13 +24,62 @@ function CHRFLib:CreateWindow(hubName)
     ScreenGui.Parent = game.CoreGui
     ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 
+    -- [[ PREMIUM INTRO ARAYÜZÜ ]]
+    local IntroFrame = Instance.new("Frame")
+    IntroFrame.Name = "IntroFrame"
+    IntroFrame.Parent = ScreenGui
+    IntroFrame.AnchorPoint = Vector2.new(0.5, 0.5)
+    IntroFrame.Position = UDim2.new(0.5, 0, 0.5, 0)
+    IntroFrame.Size = UDim2.new(0, 0, 0, 0) -- Başlangıçta 0
+    IntroFrame.BackgroundColor3 = Colors.Background
+    IntroFrame.ClipsDescendants = true
+    Instance.new("UICorner", IntroFrame).CornerRadius = UDim.new(0, 8)
+    
+    local IntroStroke = Instance.new("UIStroke", IntroFrame)
+    IntroStroke.Color = Colors.Accent
+    IntroStroke.Thickness = 2
+    IntroStroke.Transparency = 1 -- Animasyonla açılacak
+
+    local IntroTitle = Instance.new("TextLabel", IntroFrame)
+    IntroTitle.BackgroundTransparency = 1
+    IntroTitle.Size = UDim2.new(1, 0, 0, 60)
+    IntroTitle.Position = UDim2.new(0, 0, 0, 10)
+    IntroTitle.Font = Enum.Font.GothamBold
+    IntroTitle.Text = hubName
+    IntroTitle.TextColor3 = Colors.TextMain
+    IntroTitle.TextSize = 22
+
+    local IntroSub = Instance.new("TextLabel", IntroFrame)
+    IntroSub.BackgroundTransparency = 1
+    IntroSub.Size = UDim2.new(1, 0, 0, 20)
+    IntroSub.Position = UDim2.new(0, 0, 0, 45)
+    IntroSub.Font = Enum.Font.GothamSemibold
+    IntroSub.Text = "Premium Sürüm Yükleniyor..."
+    IntroSub.TextColor3 = Colors.TextMuted
+    IntroSub.TextSize = 12
+
+    local LoadBg = Instance.new("Frame", IntroFrame)
+    LoadBg.BackgroundColor3 = Colors.ElementBg
+    LoadBg.Size = UDim2.new(0, 260, 0, 6)
+    LoadBg.AnchorPoint = Vector2.new(0.5, 0)
+    LoadBg.Position = UDim2.new(0.5, 0, 1, -25)
+    Instance.new("UICorner", LoadBg).CornerRadius = UDim.new(1, 0)
+
+    local LoadFill = Instance.new("Frame", LoadBg)
+    LoadFill.BackgroundColor3 = Colors.Accent
+    LoadFill.Size = UDim2.new(0, 0, 1, 0)
+    Instance.new("UICorner", LoadFill).CornerRadius = UDim.new(1, 0)
+
+    -- [[ ANA ARAYÜZ (Başlangıçta Gizli) ]]
     local MainWhiteFrame = Instance.new("Frame")
     MainWhiteFrame.Name = "MainFrame"
     MainWhiteFrame.Parent = ScreenGui
     MainWhiteFrame.BackgroundColor3 = Colors.Accent
     MainWhiteFrame.BorderSizePixel = 0
-    MainWhiteFrame.Position = UDim2.new(0.5, -264, 0.5, -155)
-    MainWhiteFrame.Size = UDim2.new(0, 528, 0, 310)
+    -- Başlangıçta merkezde ve küçük
+    MainWhiteFrame.Position = UDim2.new(0.5, 0, 0.5, 0)
+    MainWhiteFrame.Size = UDim2.new(0, 0, 0, 0)
+    MainWhiteFrame.Visible = false 
     
     local mainCorner = Instance.new("UICorner", MainWhiteFrame)
     mainCorner.CornerRadius = UDim.new(0, 8)
@@ -43,6 +94,42 @@ function CHRFLib:CreateWindow(hubName)
     
     local mainCorner_2 = Instance.new("UICorner", MainWhiteFrame_2)
     mainCorner_2.CornerRadius = UDim.new(0, 6)
+
+    -- [[ INTRO ANİMASYON SÜRECİ ]]
+    task.spawn(function()
+        -- 1. Intro Kutusunu Ekrana Büyüterek Getir
+        local t1 = TweenService:Create(IntroFrame, TweenInfo.new(0.5, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {Size = UDim2.new(0, 300, 0, 120)})
+        TweenService:Create(IntroStroke, TweenInfo.new(0.5), {Transparency = 0}):Play()
+        t1:Play()
+        t1.Completed:Wait()
+        
+        task.wait(0.2)
+        
+        -- 2. Yükleme Barını Doldur (1.5 Saniye)
+        local t2 = TweenService:Create(LoadFill, TweenInfo.new(1.5, Enum.EasingStyle.Quad, Enum.EasingDirection.InOut), {Size = UDim2.new(1, 0, 1, 0)})
+        t2:Play()
+        t2.Completed:Wait()
+        
+        -- 3. Yazıyı Değiştir
+        IntroSub.Text = "Sistem Hazır!"
+        IntroSub.TextColor3 = Colors.Accent
+        task.wait(0.4)
+        
+        -- 4. Intro Kutusunu Küçülterek Yok Et
+        local t3 = TweenService:Create(IntroFrame, TweenInfo.new(0.4, Enum.EasingStyle.Back, Enum.EasingDirection.In), {Size = UDim2.new(0, 0, 0, 0)})
+        TweenService:Create(IntroStroke, TweenInfo.new(0.4), {Transparency = 1}):Play()
+        t3:Play()
+        t3.Completed:Wait()
+        IntroFrame:Destroy()
+        
+        -- 5. Ana Menüyü Havalı Bir Şekilde Aç
+        MainWhiteFrame.Visible = true
+        local t4 = TweenService:Create(MainWhiteFrame, TweenInfo.new(0.6, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
+            Size = UDim2.new(0, 528, 0, 310),
+            Position = UDim2.new(0.5, -264, 0.5, -155)
+        })
+        t4:Play()
+    end)
 
     -- Sol Sekme Paneli
     local tabFrame = Instance.new("Frame")
@@ -227,7 +314,6 @@ function CHRFLib:CreateWindow(hubName)
     MinimizedPanel.InputEnded:Connect(function(input)
         if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
             if not isDraggingMin then
-                -- Büyütme Olayı
                 isClosed = false
                 MainWhiteFrame:TweenSize(startSize, "Out", "Quint", 0.3)
                 MinimizedPanel.Visible = false
@@ -343,10 +429,10 @@ function CHRFLib:CreateWindow(hubName)
 
             for _, v in pairs(tabFrame:GetChildren()) do
                 if v:IsA("TextButton") then
-                    game.TweenService:Create(v, TweenInfo.new(0.2), {BackgroundColor3 = Colors.Background, TextColor3 = Colors.TextMuted}):Play()
+                    TweenService:Create(v, TweenInfo.new(0.2), {BackgroundColor3 = Colors.Background, TextColor3 = Colors.TextMuted}):Play()
                 end
             end
-            game.TweenService:Create(tabBtn, TweenInfo.new(0.2), {BackgroundColor3 = Colors.Accent, TextColor3 = Colors.TextMain}):Play()
+            TweenService:Create(tabBtn, TweenInfo.new(0.2), {BackgroundColor3 = Colors.Accent, TextColor3 = Colors.TextMain}):Play()
             
             if isSearchOpen then
                 searchBox.Text = ""
@@ -453,11 +539,11 @@ function CHRFLib:CreateWindow(hubName)
                 toggled = not toggled
                 callback(toggled)
                 if toggled then
-                    game.TweenService:Create(toggleBtn, TweenInfo.new(0.2), {BackgroundColor3 = Colors.Accent}):Play()
-                    game.TweenService:Create(indicator, TweenInfo.new(0.2), {Position = UDim2.new(1, -20, 0.5, -8), BackgroundColor3 = Colors.TextMain}):Play()
+                    TweenService:Create(toggleBtn, TweenInfo.new(0.2), {BackgroundColor3 = Colors.Accent}):Play()
+                    TweenService:Create(indicator, TweenInfo.new(0.2), {Position = UDim2.new(1, -20, 0.5, -8), BackgroundColor3 = Colors.TextMain}):Play()
                 else
-                    game.TweenService:Create(toggleBtn, TweenInfo.new(0.2), {BackgroundColor3 = Colors.Background}):Play()
-                    game.TweenService:Create(indicator, TweenInfo.new(0.2), {Position = UDim2.new(0, 4, 0.5, -8), BackgroundColor3 = Colors.TextMuted}):Play()
+                    TweenService:Create(toggleBtn, TweenInfo.new(0.2), {BackgroundColor3 = Colors.Background}):Play()
+                    TweenService:Create(indicator, TweenInfo.new(0.2), {Position = UDim2.new(0, 4, 0.5, -8), BackgroundColor3 = Colors.TextMuted}):Play()
                 end 
             end)
             
@@ -557,11 +643,11 @@ function CHRFLib:CreateWindow(hubName)
             btn.MouseButton1Click:Connect(function()
                 isDropped = not isDropped
                 if isDropped then
-                    game.TweenService:Create(frame, TweenInfo.new(0.2), {Size = UDim2.new(1, 0, 0, 40 + (#list * 30))}):Play()
-                    game.TweenService:Create(icon, TweenInfo.new(0.2), {Rotation = 180}):Play()
+                    TweenService:Create(frame, TweenInfo.new(0.2), {Size = UDim2.new(1, 0, 0, 40 + (#list * 30))}):Play()
+                    TweenService:Create(icon, TweenInfo.new(0.2), {Rotation = 180}):Play()
                 else
-                    game.TweenService:Create(frame, TweenInfo.new(0.2), {Size = UDim2.new(1, 0, 0, 40)}):Play()
-                    game.TweenService:Create(icon, TweenInfo.new(0.2), {Rotation = 0}):Play()
+                    TweenService:Create(frame, TweenInfo.new(0.2), {Size = UDim2.new(1, 0, 0, 40)}):Play()
+                    TweenService:Create(icon, TweenInfo.new(0.2), {Rotation = 0}):Play()
                 end
             end)
 
@@ -579,8 +665,8 @@ function CHRFLib:CreateWindow(hubName)
                     callback(item)
                     btn.Text = "   "..dInfo..": "..item
                     isDropped = false
-                    game.TweenService:Create(frame, TweenInfo.new(0.2), {Size = UDim2.new(1, 0, 0, 40)}):Play()
-                    game.TweenService:Create(icon, TweenInfo.new(0.2), {Rotation = 0}):Play()
+                    TweenService:Create(frame, TweenInfo.new(0.2), {Size = UDim2.new(1, 0, 0, 40)}):Play()
+                    TweenService:Create(icon, TweenInfo.new(0.2), {Rotation = 0}):Play()
                 end)
             end
             
