@@ -1,4 +1,75 @@
-UDim2.new(1, -10, 0, 20)
+local CHRFLib = {}
+local AllElements = {} 
+
+function CHRFLib:CreateWindow(hubName)
+    hubName = hubName or "CHRF YAZILIM"
+    local isClosed = false
+    
+    local TweenService = game:GetService("TweenService")
+    
+    -- Renk Paleti (Siyah / Bordo Teması)
+    local Colors = {
+        Background = Color3.fromRGB(15, 12, 12),
+        TabMenu = Color3.fromRGB(20, 16, 16),
+        ElementBg = Color3.fromRGB(25, 20, 20),
+        Accent = Color3.fromRGB(138, 15, 34),
+        TextMain = Color3.fromRGB(255, 255, 255),
+        TextMuted = Color3.fromRGB(170, 160, 160),
+        Stroke = Color3.fromRGB(45, 30, 30)
+    }
+
+    local ScreenGui = Instance.new("ScreenGui")
+    ScreenGui.Name = "CHRF_Premium_UI"
+    ScreenGui.ResetOnSpawn = false
+    ScreenGui.Parent = game.CoreGui
+    ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+
+    -- [[ AKTİF MODLAR PANELİ (YENİ) ]]
+    local ActiveModsFrame = Instance.new("Frame", ScreenGui)
+    ActiveModsFrame.BackgroundColor3 = Color3.fromRGB(10, 8, 8)
+    ActiveModsFrame.BackgroundTransparency = 0.4
+    ActiveModsFrame.Position = UDim2.new(0, 10, 0.4, 0)
+    ActiveModsFrame.Size = UDim2.new(0, 150, 0, 30)
+    Instance.new("UICorner", ActiveModsFrame).CornerRadius = UDim.new(0, 6)
+    Instance.new("UIStroke", ActiveModsFrame).Color = Colors.Stroke
+    
+    local ActiveTitle = Instance.new("TextLabel", ActiveModsFrame)
+    ActiveTitle.BackgroundTransparency = 1
+    ActiveTitle.Size = UDim2.new(1, 0, 0, 30)
+    ActiveTitle.Font = Enum.Font.GothamBold
+    ActiveTitle.Text = "AKTİF MODLAR"
+    ActiveTitle.TextColor3 = Colors.Accent
+    ActiveTitle.TextSize = 12
+    
+    local ActiveList = Instance.new("UIListLayout", ActiveModsFrame)
+    ActiveList.SortOrder = Enum.SortOrder.LayoutOrder
+    ActiveList.Padding = UDim.new(0, 2)
+    
+    local amDrag, amPos, amStart
+    ActiveModsFrame.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 then
+            amDrag = true
+            amPos = input.Position
+            amStart = ActiveModsFrame.Position
+        end
+    end)
+    game:GetService("UserInputService").InputChanged:Connect(function(input)
+        if amDrag and input.UserInputType == Enum.UserInputType.MouseMovement then
+            local delta = input.Position - amPos
+            ActiveModsFrame.Position = UDim2.new(amStart.X.Scale, amStart.X.Offset + delta.X, amStart.Y.Scale, amStart.Y.Offset + delta.Y)
+        end
+    end)
+    game:GetService("UserInputService").InputEnded:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 then amDrag = false end
+    end)
+
+    local activeMods = {}
+    function CHRFLib:SetModState(modName, isActive)
+        if isActive then
+            if not activeMods[modName] then
+                local lbl = Instance.new("TextLabel", ActiveModsFrame)
+                lbl.BackgroundTransparency = 1
+                lbl.Size = UDim2.new(1, -10, 0, 20)
                 lbl.Position = UDim2.new(0, 10, 0, 0)
                 lbl.Font = Enum.Font.GothamSemibold
                 lbl.Text = "• " .. modName
@@ -15,48 +86,6 @@ UDim2.new(1, -10, 0, 20)
                 ActiveModsFrame.Size = UDim2.new(0, 150, 0, 30 + (ActiveList.AbsoluteContentSize.Y))
             end
         end
-    end
-
-    -- [[ WATERMARK SİSTEMİ (FPS & PİNG) (GİZLENEBİLİR VE SÜRÜKLENEBİLİR) ]]
-    local WatermarkLabel = Instance.new("TextLabel", ScreenGui)
-    WatermarkLabel.Name = "CHRF_Watermark"
-    WatermarkLabel.BackgroundTransparency = 1 -- Arka plan gizlendi
-    WatermarkLabel.Position = UDim2.new(1, -220, 0, 10)
-    WatermarkLabel.Size = UDim2.new(0, 210, 0, 25)
-    WatermarkLabel.Font = Enum.Font.GothamBold
-    WatermarkLabel.TextColor3 = Colors.Accent
-    WatermarkLabel.TextSize = 13
-    WatermarkLabel.TextXAlignment = Enum.TextXAlignment.Right
-    local wStroke = Instance.new("UIStroke", WatermarkLabel)
-    wStroke.Color = Color3.fromRGB(0,0,0)
-    wStroke.Thickness = 1.5
-
-    local wmDrag, wmPos, wmStart
-    WatermarkLabel.InputBegan:Connect(function(input)
-        if CHRFLib.CanDragIndicators and input.UserInputType == Enum.UserInputType.MouseButton1 then
-            wmDrag = true
-            wmPos = input.Position
-            wmStart = WatermarkLabel.Position
-        end
-    end)
-    game:GetService("UserInputService").InputChanged:Connect(function(input)
-        if wmDrag and input.UserInputType == Enum.UserInputType.MouseMovement then
-            local delta = input.Position - wmPos
-            WatermarkLabel.Position = UDim2.new(wmStart.X.Scale, wmStart.X.Offset + delta.X, wmStart.Y.Scale, wmStart.Y.Offset + delta.Y)
-        end
-    end)
-    game:GetService("UserInputService").InputEnded:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseButton1 then wmDrag = false end
-    end)
-
-    function CHRFLib:UpdateWatermark(text)
-        WatermarkLabel.Text = text
-    end
-    function CHRFLib:SetWatermarkVisible(state)
-        WatermarkLabel.Visible = state
-    end
-    function CHRFLib:SetActiveModsVisible(state)
-        ActiveModsFrame.Visible = state
     end
 
     -- [[ BİLDİRİM SİSTEMİ ]]
@@ -458,7 +487,7 @@ UDim2.new(1, -10, 0, 20)
         end
     end)
 
-    -- FARE SERBEST BIRAKMA
+    -- FARE (MOUSE) SERBEST BIRAKMA MANTIĞI YENİ
     UserInputService.InputBegan:Connect(function(input, gameProcessed)
         if not gameProcessed and input.KeyCode == Enum.KeyCode.K then
             ScreenGui.Enabled = not ScreenGui.Enabled
