@@ -1,9 +1,9 @@
 local CHRFLib = {}
 local AllElements = {} 
 function CHRFLib:CreateWindow(hubName)
-    hubName = hubName or "CHRF YAZILIM"
+    hubName = hubName or "CHRF+ Software"
     local isClosed = false
-    local isAnimating = false -- AÇ/KAPA BUG FİX İÇİN KİLİT
+    local isAnimating = false 
     
     local TweenService = game:GetService("TweenService")
     local UserInputService = game:GetService("UserInputService")
@@ -26,7 +26,7 @@ function CHRFLib:CreateWindow(hubName)
     local ScreenGui = Instance.new("ScreenGui")
     ScreenGui.Name = "CHRF_Premium_UI"
     ScreenGui.ResetOnSpawn = false
-    ScreenGui.Parent = game.CoreGui
+    ScreenGui.Parent = game:GetService("CoreGui")
     ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
     ScreenGui.DisplayOrder = 99999 
 
@@ -418,7 +418,7 @@ function CHRFLib:CreateWindow(hubName)
     minText.Size = UDim2.new(1, 0, 1, 0)
     minText.BackgroundTransparency = 1
     minText.Font = Enum.Font.GothamBold
-    minText.Text = "CHRF YAZILIM"
+    minText.Text = "CHRF+ Software"  -- İŞTE BURASI DÜZELTİLDİ! LITE YERİNE CHRF+ YAZIYOR.
     minText.TextColor3 = Colors.TextMain
     minText.TextSize = 14
 
@@ -452,7 +452,7 @@ function CHRFLib:CreateWindow(hubName)
         end
     end)
 
-    -- AÇ/KAPA BUG FİX (KİLİT MEKANİZMASI EKLENDİ)
+    -- AÇ/KAPA BUG FİX 
     MinimizedPanel.InputEnded:Connect(function(input)
         if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
             if not isDraggingMin and not isAnimating then
@@ -511,7 +511,7 @@ function CHRFLib:CreateWindow(hubName)
         end
     end)
 
-    -- AÇ/KAPA BUG FİX (KİLİT MEKANİZMASI EKLENDİ)
+    -- AÇ/KAPA BUG FİX 
     closeLib.MouseButton1Click:Connect(function()
         if not isClosed and not isAnimating then
             isAnimating = true
@@ -867,7 +867,6 @@ function CHRFLib:CreateWindow(hubName)
             sliderFill.Size = UDim2.new(defScale, 0, 1, 0)
             Instance.new("UICorner", sliderFill).CornerRadius = UDim.new(1, 0)
             
-            -- Hata yaratan mouse değişkeni silindi
             local uis = game:GetService("UserInputService")
             local isSliding = false
 
