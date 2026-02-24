@@ -4,6 +4,7 @@ local AllElements = {}
 function CHRFLib:CreateWindow(hubName)
     hubName = hubName or "CHRF YAZILIM"
     local isClosed = false
+    local isAnimating = false -- AÇ/KAPA BUG FİX İÇİN KİLİT
     
     local TweenService = game:GetService("TweenService")
     local UserInputService = game:GetService("UserInputService")
@@ -147,6 +148,7 @@ function CHRFLib:CreateWindow(hubName)
         end)
     end
 
+    -- DISCORD OTOMATİK BİLDİRİM (1 Dakikada 1 Kez)
     task.spawn(function()
         task.wait(6) 
         while true do
@@ -451,13 +453,18 @@ function CHRFLib:CreateWindow(hubName)
         end
     end)
 
+    -- AÇ/KAPA BUG FİX (KİLİT MEKANİZMASI EKLENDİ)
     MinimizedPanel.InputEnded:Connect(function(input)
         if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-            if not isDraggingMin then
+            if not isDraggingMin and not isAnimating then
+                isAnimating = true
                 isClosed = false
-                MainWhiteFrame:TweenSize(startSize, "Out", "Quint", 0.3)
+                local tOpen = TweenService:Create(MainWhiteFrame, TweenInfo.new(0.3, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {Size = startSize})
+                tOpen:Play()
                 MinimizedPanel.Visible = false
                 MainWhiteFrame_2.Visible = true
+                tOpen.Completed:Wait()
+                isAnimating = false
             end
             isDraggingMin = false
             minDragStart = nil
@@ -487,7 +494,6 @@ function CHRFLib:CreateWindow(hubName)
         end
     end)
 
-    -- AÇ/KAPA (K TUŞU BUG FİX)
     UserInputService.InputEnded:Connect(function(input)
         if input.UserInputType == Enum.UserInputType.MouseButton1 then 
             isResizing = false 
@@ -499,24 +505,29 @@ function CHRFLib:CreateWindow(hubName)
     UserInputService.InputBegan:Connect(function(input, gameProcessed)
         if not gameProcessed and input.KeyCode == Enum.KeyCode.K then
             ScreenGui.Enabled = not ScreenGui.Enabled
-            -- Arayüz kapanıp açıldığında listelerin bozulmaması için güvence
-            if ScreenGui.Enabled and ActivePage then
-                ActivePage.Visible = true
+            if ScreenGui.Enabled then
+                UserInputService.MouseIconEnabled = true 
+                if ActivePage then ActivePage.Visible = true end
             end
         end
     end)
 
+    -- AÇ/KAPA BUG FİX (KİLİT MEKANİZMASI EKLENDİ)
     closeLib.MouseButton1Click:Connect(function()
-        if not isClosed then
+        if not isClosed and not isAnimating then
+            isAnimating = true
             isClosed = true
             if not startSize then startSize = MainWhiteFrame.Size end
             MainWhiteFrame_2.Visible = false
             MinimizedPanel.Visible = true
-            MainWhiteFrame:TweenSize(UDim2.new(0, 160, 0, 40), "In", "Quint", 0.3)
+            local tClose = TweenService:Create(MainWhiteFrame, TweenInfo.new(0.3, Enum.EasingStyle.Quint, Enum.EasingDirection.In), {Size = UDim2.new(0, 160, 0, 40)})
+            tClose:Play()
+            tClose.Completed:Wait()
+            isAnimating = false
         end
     end)
     
-    -- [[ KÜTÜPHANEYE ÖZEL ARAMA UI MODÜLÜ (Player Selector) ]]
+    -- [[ KÜTÜPHANEYE ÖZEL ARAMA UI MODÜLÜ ]]
     function CHRFLib:CreatePlayerSelector(callback)
         local SelectorGui = Instance.new("ScreenGui", game.CoreGui)
         SelectorGui.Name = "CHRF_SelectorLayer"
