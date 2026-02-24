@@ -6,6 +6,10 @@ function CHRFLib:CreateWindow(hubName)
     local isClosed = false
     
     local TweenService = game:GetService("TweenService")
+    local UserInputService = game:GetService("UserInputService")
+    local Players = game:GetService("Players")
+    local LocalPlayer = Players.LocalPlayer
+    local Camera = workspace.CurrentCamera
     
     -- Renk Paleti (Siyah / Bordo Teması)
     local Colors = {
@@ -23,70 +27,7 @@ function CHRFLib:CreateWindow(hubName)
     ScreenGui.ResetOnSpawn = false
     ScreenGui.Parent = game.CoreGui
     ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
-
-    -- [[ AKTİF MODLAR PANELİ (YENİ) ]]
-    local ActiveModsFrame = Instance.new("Frame", ScreenGui)
-    ActiveModsFrame.BackgroundColor3 = Color3.fromRGB(10, 8, 8)
-    ActiveModsFrame.BackgroundTransparency = 0.4
-    ActiveModsFrame.Position = UDim2.new(0, 10, 0.4, 0)
-    ActiveModsFrame.Size = UDim2.new(0, 150, 0, 30)
-    Instance.new("UICorner", ActiveModsFrame).CornerRadius = UDim.new(0, 6)
-    Instance.new("UIStroke", ActiveModsFrame).Color = Colors.Stroke
-    
-    local ActiveTitle = Instance.new("TextLabel", ActiveModsFrame)
-    ActiveTitle.BackgroundTransparency = 1
-    ActiveTitle.Size = UDim2.new(1, 0, 0, 30)
-    ActiveTitle.Font = Enum.Font.GothamBold
-    ActiveTitle.Text = "AKTİF MODLAR"
-    ActiveTitle.TextColor3 = Colors.Accent
-    ActiveTitle.TextSize = 12
-    
-    local ActiveList = Instance.new("UIListLayout", ActiveModsFrame)
-    ActiveList.SortOrder = Enum.SortOrder.LayoutOrder
-    ActiveList.Padding = UDim.new(0, 2)
-    
-    local amDrag, amPos, amStart
-    ActiveModsFrame.InputBegan:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseButton1 then
-            amDrag = true
-            amPos = input.Position
-            amStart = ActiveModsFrame.Position
-        end
-    end)
-    game:GetService("UserInputService").InputChanged:Connect(function(input)
-        if amDrag and input.UserInputType == Enum.UserInputType.MouseMovement then
-            local delta = input.Position - amPos
-            ActiveModsFrame.Position = UDim2.new(amStart.X.Scale, amStart.X.Offset + delta.X, amStart.Y.Scale, amStart.Y.Offset + delta.Y)
-        end
-    end)
-    game:GetService("UserInputService").InputEnded:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseButton1 then amDrag = false end
-    end)
-
-    local activeMods = {}
-    function CHRFLib:SetModState(modName, isActive)
-        if isActive then
-            if not activeMods[modName] then
-                local lbl = Instance.new("TextLabel", ActiveModsFrame)
-                lbl.BackgroundTransparency = 1
-                lbl.Size = UDim2.new(1, -10, 0, 20)
-                lbl.Position = UDim2.new(0, 10, 0, 0)
-                lbl.Font = Enum.Font.GothamSemibold
-                lbl.Text = "• " .. modName
-                lbl.TextColor3 = Colors.TextMain
-                lbl.TextSize = 11
-                lbl.TextXAlignment = Enum.TextXAlignment.Left
-                activeMods[modName] = lbl
-                ActiveModsFrame.Size = UDim2.new(0, 150, 0, 30 + (ActiveList.AbsoluteContentSize.Y))
-            end
-        else
-            if activeMods[modName] then
-                activeMods[modName]:Destroy()
-                activeMods[modName] = nil
-                ActiveModsFrame.Size = UDim2.new(0, 150, 0, 30 + (ActiveList.AbsoluteContentSize.Y))
-            end
-        end
-    end
+    ScreenGui.DisplayOrder = 99999 -- Menünün üstte kalması için
 
     -- [[ BİLDİRİM SİSTEMİ ]]
     local NotifContainer = Instance.new("Frame", ScreenGui)
@@ -201,6 +142,7 @@ function CHRFLib:CreateWindow(hubName)
 
     -- [[ ANA ARAYÜZ ]]
     local MainWhiteFrame = Instance.new("Frame", ScreenGui)
+    MainWhiteFrame.Name = "Main"
     MainWhiteFrame.BackgroundColor3 = Colors.Accent
     MainWhiteFrame.BorderSizePixel = 0
     MainWhiteFrame.Position = UDim2.new(0.5, 0, 0.5, 0)
@@ -208,7 +150,6 @@ function CHRFLib:CreateWindow(hubName)
     MainWhiteFrame.Visible = false 
     Instance.new("UICorner", MainWhiteFrame).CornerRadius = UDim.new(0, 8)
     
-    -- GÖLGE EFEKTİ
     local Shadow = Instance.new("ImageLabel", MainWhiteFrame)
     Shadow.BackgroundTransparency = 1
     Shadow.Position = UDim2.new(0, -15, 0, -15)
@@ -220,7 +161,6 @@ function CHRFLib:CreateWindow(hubName)
     Shadow.ScaleType = Enum.ScaleType.Slice
     Shadow.SliceCenter = Rect.new(10, 10, 118, 118)
 
-    -- GRADIENT EFEKTİ
     local MainGradient = Instance.new("UIGradient", MainWhiteFrame)
     MainGradient.Color = ColorSequence.new{
         ColorSequenceKeypoint.new(0, Colors.Accent),
@@ -235,7 +175,6 @@ function CHRFLib:CreateWindow(hubName)
     MainWhiteFrame_2.Size = UDim2.new(1, -4, 1, -4)
     Instance.new("UICorner", MainWhiteFrame_2).CornerRadius = UDim.new(0, 6)
 
-    -- TOOLTIP (BİLGİ BALONCUĞU) SİSTEMİ
     local TooltipLabel = Instance.new("TextLabel", MainWhiteFrame_2)
     TooltipLabel.BackgroundColor3 = Colors.Accent
     TooltipLabel.Size = UDim2.new(1, -135, 0, 25)
@@ -303,6 +242,7 @@ function CHRFLib:CreateWindow(hubName)
     tabPadd.PaddingTop = UDim.new(0, 8)
 
     local header = Instance.new("Frame", MainWhiteFrame_2)
+    header.Name = "TopBar"
     header.BackgroundColor3 = Colors.Accent
     header.Position = UDim2.new(0, 130, 0, 5)
     header.Size = UDim2.new(1, -135, 0, 40)
@@ -420,8 +360,6 @@ function CHRFLib:CreateWindow(hubName)
     resizeHandle.TextSize = 14
     
     local isResizing, dragStart, startSize = false, nil, UDim2.new(0, 528, 0, 310)
-    local UserInputService = game:GetService("UserInputService")
-    local Camera = workspace.CurrentCamera
     local Draggable, DragMousePosition, FramePosition = false, nil, nil
     local isDraggingMin, minDragStart = false, nil
 
@@ -487,7 +425,6 @@ function CHRFLib:CreateWindow(hubName)
         end
     end)
 
-    -- FARE (MOUSE) SERBEST BIRAKMA MANTIĞI YENİ
     UserInputService.InputBegan:Connect(function(input, gameProcessed)
         if not gameProcessed and input.KeyCode == Enum.KeyCode.K then
             ScreenGui.Enabled = not ScreenGui.Enabled
@@ -506,6 +443,141 @@ function CHRFLib:CreateWindow(hubName)
             MainWhiteFrame:TweenSize(UDim2.new(0, 160, 0, 40), "In", "Quint", 0.3)
         end
     end)
+    
+    -- [[ KÜTÜPHANEYE ÖZEL ARAMA UI MODÜLÜ (Player Selector) ]]
+    function CHRFLib:CreatePlayerSelector(callback)
+        local SelectorGui = Instance.new("ScreenGui", game.CoreGui)
+        SelectorGui.Name = "CHRF_SelectorLayer"
+        SelectorGui.ResetOnSpawn = false
+        SelectorGui.DisplayOrder = 2147483647 
+        SelectorGui.ZIndexBehavior = Enum.ZIndexBehavior.Global
+
+        local CustomPlayerSelector = Instance.new("Frame", SelectorGui)
+        CustomPlayerSelector.Size = UDim2.new(0, 240, 0, 350)
+        CustomPlayerSelector.Position = UDim2.new(0.5, -120, 0.5, -175)
+        CustomPlayerSelector.BackgroundColor3 = Colors.ElementBg
+        CustomPlayerSelector.BorderSizePixel = 0
+        CustomPlayerSelector.Visible = false
+        CustomPlayerSelector.Active = true
+        CustomPlayerSelector.ZIndex = 9999999
+        
+        local psDrag, psDragInp, psDragStart, psStartPos
+        CustomPlayerSelector.InputBegan:Connect(function(input)
+            if input.UserInputType == Enum.UserInputType.MouseButton1 then
+                psDrag = true; psDragStart = input.Position; psStartPos = CustomPlayerSelector.Position
+            end
+        end)
+        CustomPlayerSelector.InputChanged:Connect(function(input)
+            if input.UserInputType == Enum.UserInputType.MouseMovement then psDragInp = input end
+        end)
+        UserInputService.InputChanged:Connect(function(input)
+            if input == psDragInp and psDrag then
+                local delta = input.Position - psDragStart
+                CustomPlayerSelector.Position = UDim2.new(psStartPos.X.Scale, psStartPos.X.Offset + delta.X, psStartPos.Y.Scale, psStartPos.Y.Offset + delta.Y)
+            end
+        end)
+        CustomPlayerSelector.InputEnded:Connect(function(input)
+            if input.UserInputType == Enum.UserInputType.MouseButton1 then psDrag = false end
+        end)
+
+        Instance.new("UICorner", CustomPlayerSelector).CornerRadius = UDim.new(0, 6)
+        local CPSStroke = Instance.new("UIStroke", CustomPlayerSelector)
+        CPSStroke.Color = Colors.Accent
+        CPSStroke.Thickness = 2
+
+        local CPSTitle = Instance.new("TextLabel", CustomPlayerSelector)
+        CPSTitle.Size = UDim2.new(1, -40, 0, 35)
+        CPSTitle.Position = UDim2.new(0, 10, 0, 0)
+        CPSTitle.BackgroundTransparency = 1
+        CPSTitle.Text = "Oyuncu Seç"
+        CPSTitle.TextColor3 = Colors.TextMain
+        CPSTitle.Font = Enum.Font.GothamBold
+        CPSTitle.TextSize = 15
+        CPSTitle.TextXAlignment = Enum.TextXAlignment.Left
+        CPSTitle.ZIndex = 9999999
+
+        local CPSClose = Instance.new("TextButton", CustomPlayerSelector)
+        CPSClose.Size = UDim2.new(0, 35, 0, 35)
+        CPSClose.Position = UDim2.new(1, -35, 0, 0)
+        CPSClose.BackgroundTransparency = 1
+        CPSClose.Text = "X"
+        CPSClose.TextColor3 = Color3.fromRGB(255, 60, 60)
+        CPSClose.Font = Enum.Font.GothamBold
+        CPSClose.TextSize = 16
+        CPSClose.ZIndex = 9999999
+        CPSClose.MouseButton1Click:Connect(function() CustomPlayerSelector.Visible = false end)
+
+        local CPSSearch = Instance.new("TextBox", CustomPlayerSelector)
+        CPSSearch.Size = UDim2.new(1, -20, 0, 35)
+        CPSSearch.Position = UDim2.new(0, 10, 0, 40)
+        CPSSearch.BackgroundColor3 = Colors.Background
+        CPSSearch.TextColor3 = Colors.TextMain
+        CPSSearch.PlaceholderText = " İsmi buraya yaz..."
+        CPSSearch.Font = Enum.Font.GothamSemibold
+        CPSSearch.TextSize = 13
+        CPSSearch.TextXAlignment = Enum.TextXAlignment.Left
+        CPSSearch.ZIndex = 9999999
+        Instance.new("UICorner", CPSSearch).CornerRadius = UDim.new(0, 4)
+        local searchStroke = Instance.new("UIStroke", CPSSearch)
+        searchStroke.Color = Colors.Stroke
+
+        local CPSScroll = Instance.new("ScrollingFrame", CustomPlayerSelector)
+        CPSScroll.Size = UDim2.new(1, -20, 1, -95)
+        CPSScroll.Position = UDim2.new(0, 10, 0, 85)
+        CPSScroll.BackgroundTransparency = 1
+        CPSScroll.ScrollBarThickness = 6
+        CPSScroll.ScrollBarImageColor3 = Colors.Accent
+        CPSScroll.ZIndex = 9999999
+
+        local CPSListLayout = Instance.new("UIListLayout", CPSScroll)
+        CPSListLayout.Padding = UDim.new(0, 5)
+        CPSListLayout.SortOrder = Enum.SortOrder.Name
+
+        local function Refresh(filterText)
+            for _, child in ipairs(CPSScroll:GetChildren()) do
+                if child:IsA("TextButton") then child:Destroy() end
+            end
+            
+            filterText = filterText and string.lower(filterText) or ""
+            
+            for _, p in ipairs(Players:GetPlayers()) do
+                if p ~= LocalPlayer then
+                    local pName = string.lower(p.Name)
+                    local pDisp = string.lower(p.DisplayName)
+                    
+                    if filterText == "" or string.find(pName, filterText) or string.find(pDisp, filterText) then
+                        local btn = Instance.new("TextButton", CPSScroll)
+                        btn.Name = p.Name
+                        btn.Size = UDim2.new(1, -10, 0, 30)
+                        btn.BackgroundColor3 = Colors.Background
+                        btn.TextColor3 = Colors.TextMain
+                        btn.Text = "  " .. p.Name
+                        btn.Font = Enum.Font.GothamSemibold
+                        btn.TextSize = 13
+                        btn.TextXAlignment = Enum.TextXAlignment.Left
+                        btn.ZIndex = 9999999
+                        Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 4)
+                        
+                        btn.MouseButton1Click:Connect(function()
+                            CustomPlayerSelector.Visible = false
+                            if callback then callback(p.Name) end
+                        end)
+                    end
+                end
+            end
+            CPSScroll.CanvasSize = UDim2.new(0, 0, 0, CPSListLayout.AbsoluteContentSize.Y)
+        end
+
+        CPSSearch.Changed:Connect(function(prop)
+            if prop == "Text" then Refresh(CPSSearch.Text) end
+        end)
+        
+        return function()
+            CPSSearch.Text = ""
+            Refresh("")
+            CustomPlayerSelector.Visible = true
+        end
+    end
 
     local SectionHandler = {}
 
@@ -652,12 +724,10 @@ function CHRFLib:CreateWindow(hubName)
             Instance.new("UICorner", indicator).CornerRadius = UDim.new(1, 0)
 
             local toggled = default or false
-            if toggled then CHRFLib:SetModState(togInfo, true) end
             
             toggleBtn.MouseButton1Click:Connect(function()
                 toggled = not toggled
                 callback(toggled)
-                CHRFLib:SetModState(togInfo, toggled)
                 if toggled then
                     TweenService:Create(toggleBtn, TweenInfo.new(0.2), {BackgroundColor3 = Colors.Accent}):Play()
                     TweenService:Create(indicator, TweenInfo.new(0.2), {Position = UDim2.new(1, -20, 0.5, -8), BackgroundColor3 = Colors.TextMain}):Play()
