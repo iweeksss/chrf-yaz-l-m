@@ -13,10 +13,10 @@ function CHRFLib:CreateWindow(hubName)
     
     -- [[ ULTRA PREMIUM RENK PALETİ ]]
     local Colors = {
-        Background = Color3.fromRGB(16, 12, 12), -- Koyu ve mat
+        Background = Color3.fromRGB(16, 12, 12),
         TabMenu = Color3.fromRGB(22, 16, 16),
         ElementBg = Color3.fromRGB(28, 20, 20),
-        Accent = Color3.fromRGB(170, 20, 40), -- Daha parlak, seksi bir bordo
+        Accent = Color3.fromRGB(170, 20, 40),
         AccentDark = Color3.fromRGB(110, 10, 20),
         TextMain = Color3.fromRGB(250, 250, 250),
         TextMuted = Color3.fromRGB(160, 150, 150),
@@ -28,9 +28,9 @@ function CHRFLib:CreateWindow(hubName)
     ScreenGui.ResetOnSpawn = false
     ScreenGui.Parent = game.CoreGui
     ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
-    ScreenGui.DisplayOrder = 999999 
+    ScreenGui.DisplayOrder = 99999 
 
-    -- [[ DISCORD SİSTEMİ (TARAYICIDA AÇAN BİLDİRİM) ]]
+    -- [[ BİLDİRİM SİSTEMİ ]]
     local NotifContainer = Instance.new("Frame", ScreenGui)
     NotifContainer.Name = "NotifContainer"
     NotifContainer.BackgroundTransparency = 1
@@ -107,7 +107,6 @@ function CHRFLib:CreateWindow(hubName)
             end)
             
             notif.MouseButton1Click:Connect(function()
-                -- Kopyalama yerine direkt tarayıcıda açma komutu (Executors Support)
                 pcall(function()
                     if request then
                         request({
@@ -148,12 +147,11 @@ function CHRFLib:CreateWindow(hubName)
         end)
     end
 
-    -- DISCORD OTOMATİK BİLDİRİM (1 Dakikada 1 Kez)
     task.spawn(function()
         task.wait(6) 
         while true do
             CHRFLib:MakeNotification({
-                Title = "CHRF Community", 
+                Title = "CHRF+ Software", 
                 Content = "En güncel ve güçlü hileler için Discord'a katıl! (Tıklayarak katılabilirsin)", 
                 Time = 8,
                 IsDiscord = true
@@ -200,7 +198,7 @@ function CHRFLib:CreateWindow(hubName)
     local DevLabel = Instance.new("TextLabel", IntroFrame)
     DevLabel.BackgroundTransparency = 1
     DevLabel.Size = UDim2.new(1, 0, 0, 15)
-    DevLabel.Position = UDim2.new(0, 0, 0, 90) -- Geliştirici yazısı pozisyonu
+    DevLabel.Position = UDim2.new(0, 0, 0, 90) 
     DevLabel.Font = Enum.Font.GothamSemibold
     DevLabel.Text = "Developers: iWeeKs, Tonyalı, Samaras"
     DevLabel.TextColor3 = Colors.Accent
@@ -229,8 +227,6 @@ function CHRFLib:CreateWindow(hubName)
     MainWhiteFrame.Visible = false 
     Instance.new("UICorner", MainWhiteFrame).CornerRadius = UDim.new(0, 10)
     
-    -- GÖLGE SİLİNDİ.
-
     local MainGradient = Instance.new("UIGradient", MainWhiteFrame)
     MainGradient.Color = ColorSequence.new{
         ColorSequenceKeypoint.new(0, Colors.Accent),
@@ -365,6 +361,7 @@ function CHRFLib:CreateWindow(hubName)
     closeLib.Image = "rbxassetid://4988112250"
 
     local elementContainer = Instance.new("Frame", MainWhiteFrame_2)
+    elementContainer.Name = "ElementContainer"
     elementContainer.BackgroundColor3 = Colors.Background
     elementContainer.Position = UDim2.new(0, 142, 0, 54)
     elementContainer.Size = UDim2.new(1, -148, 1, -60)
@@ -490,6 +487,7 @@ function CHRFLib:CreateWindow(hubName)
         end
     end)
 
+    -- AÇ/KAPA (K TUŞU BUG FİX)
     UserInputService.InputEnded:Connect(function(input)
         if input.UserInputType == Enum.UserInputType.MouseButton1 then 
             isResizing = false 
@@ -501,8 +499,9 @@ function CHRFLib:CreateWindow(hubName)
     UserInputService.InputBegan:Connect(function(input, gameProcessed)
         if not gameProcessed and input.KeyCode == Enum.KeyCode.K then
             ScreenGui.Enabled = not ScreenGui.Enabled
-            if ScreenGui.Enabled then
-                UserInputService.MouseIconEnabled = true 
+            -- Arayüz kapanıp açıldığında listelerin bozulmaması için güvence
+            if ScreenGui.Enabled and ActivePage then
+                ActivePage.Visible = true
             end
         end
     end)
@@ -631,7 +630,6 @@ function CHRFLib:CreateWindow(hubName)
                         btn.ZIndex = 9999999
                         Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 4)
                         
-                        -- HOVER EFEKTİ
                         btn.MouseEnter:Connect(function() TweenService:Create(btn, TweenInfo.new(0.2), {BackgroundColor3 = Colors.AccentDark}):Play() end)
                         btn.MouseLeave:Connect(function() TweenService:Create(btn, TweenInfo.new(0.2), {BackgroundColor3 = Colors.Background}):Play() end)
 
@@ -773,12 +771,10 @@ function CHRFLib:CreateWindow(hubName)
             btn.AutoButtonColor = false
             Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 6)
             
-            -- HOVER EFEKTİ
             btn.MouseEnter:Connect(function() TweenService:Create(btn, TweenInfo.new(0.2), {BackgroundColor3 = Colors.AccentDark, Size = UDim2.new(0, 92, 0, 30), Position = UDim2.new(1, -101, 0.5, -15)}):Play() end)
             btn.MouseLeave:Connect(function() TweenService:Create(btn, TweenInfo.new(0.2), {BackgroundColor3 = Colors.Accent, Size = UDim2.new(0, 90, 0, 28), Position = UDim2.new(1, -100, 0.5, -14)}):Play() end)
             
             btn.MouseButton1Click:Connect(function()
-                -- Tıklama efekti
                 TweenService:Create(btn, TweenInfo.new(0.1), {Size = UDim2.new(0, 85, 0, 26), Position = UDim2.new(1, -97, 0.5, -13)}):Play()
                 task.wait(0.1)
                 TweenService:Create(btn, TweenInfo.new(0.1), {Size = UDim2.new(0, 92, 0, 30), Position = UDim2.new(1, -101, 0.5, -15)}):Play()
