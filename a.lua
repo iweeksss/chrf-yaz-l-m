@@ -11,15 +11,16 @@ function CHRFLib:CreateWindow(hubName)
     local LocalPlayer = Players.LocalPlayer
     local Camera = workspace.CurrentCamera
     
-    -- Renk Paleti (Siyah / Bordo Teması)
+    -- [[ PREMIUM RENK PALETİ ]]
     local Colors = {
-        Background = Color3.fromRGB(15, 12, 12),
-        TabMenu = Color3.fromRGB(20, 16, 16),
-        ElementBg = Color3.fromRGB(25, 20, 20),
-        Accent = Color3.fromRGB(138, 15, 34),
-        TextMain = Color3.fromRGB(255, 255, 255),
-        TextMuted = Color3.fromRGB(170, 160, 160),
-        Stroke = Color3.fromRGB(45, 30, 30)
+        Background = Color3.fromRGB(18, 14, 14), -- Biraz daha yumuşak siyah
+        TabMenu = Color3.fromRGB(24, 18, 18),
+        ElementBg = Color3.fromRGB(30, 24, 24),
+        Accent = Color3.fromRGB(150, 15, 34), -- Daha canlı bordo
+        AccentDark = Color3.fromRGB(100, 10, 20),
+        TextMain = Color3.fromRGB(240, 240, 240),
+        TextMuted = Color3.fromRGB(150, 140, 140),
+        Stroke = Color3.fromRGB(60, 40, 40)
     }
 
     local ScreenGui = Instance.new("ScreenGui")
@@ -27,19 +28,19 @@ function CHRFLib:CreateWindow(hubName)
     ScreenGui.ResetOnSpawn = false
     ScreenGui.Parent = game.CoreGui
     ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
-    ScreenGui.DisplayOrder = 99999 -- Menünün üstte kalması için
+    ScreenGui.DisplayOrder = 99999 
 
     -- [[ BİLDİRİM SİSTEMİ ]]
     local NotifContainer = Instance.new("Frame", ScreenGui)
     NotifContainer.Name = "NotifContainer"
     NotifContainer.BackgroundTransparency = 1
-    NotifContainer.Position = UDim2.new(1, -260, 1, -20)
-    NotifContainer.Size = UDim2.new(0, 250, 1, 0)
+    NotifContainer.Position = UDim2.new(1, -270, 1, -60) -- Discord butonuna yer açmak için biraz yukarı alındı
+    NotifContainer.Size = UDim2.new(0, 260, 1, 0)
     NotifContainer.AnchorPoint = Vector2.new(0, 1)
     local NotifList = Instance.new("UIListLayout", NotifContainer)
     NotifList.SortOrder = Enum.SortOrder.LayoutOrder
     NotifList.VerticalAlignment = Enum.VerticalAlignment.Bottom
-    NotifList.Padding = UDim.new(0, 10)
+    NotifList.Padding = UDim.new(0, 12)
 
     function CHRFLib:MakeNotification(cfg)
         local title = cfg.Title or "Bildirim"
@@ -47,18 +48,27 @@ function CHRFLib:CreateWindow(hubName)
         local time = cfg.Time or 3
 
         local notif = Instance.new("Frame", NotifContainer)
-        notif.BackgroundColor3 = Colors.ElementBg
-        notif.Size = UDim2.new(1, 50, 0, 60)
+        notif.BackgroundColor3 = Colors.Background
+        notif.Size = UDim2.new(1, 50, 0, 65)
         notif.BackgroundTransparency = 1
-        Instance.new("UICorner", notif).CornerRadius = UDim.new(0, 6)
+        Instance.new("UICorner", notif).CornerRadius = UDim.new(0, 8)
         local nStroke = Instance.new("UIStroke", notif)
         nStroke.Color = Colors.Accent
+        nStroke.Thickness = 1.5
         nStroke.Transparency = 1
+
+        -- Sol taraftaki ufak bordo şerit (Modern görünüm)
+        local sideBar = Instance.new("Frame", notif)
+        sideBar.BackgroundColor3 = Colors.Accent
+        sideBar.Size = UDim2.new(0, 4, 1, -12)
+        sideBar.Position = UDim2.new(0, 6, 0, 6)
+        sideBar.BackgroundTransparency = 1
+        Instance.new("UICorner", sideBar).CornerRadius = UDim.new(1, 0)
 
         local nTitle = Instance.new("TextLabel", notif)
         nTitle.BackgroundTransparency = 1
-        nTitle.Position = UDim2.new(0, 10, 0, 5)
-        nTitle.Size = UDim2.new(1, -20, 0, 20)
+        nTitle.Position = UDim2.new(0, 18, 0, 8)
+        nTitle.Size = UDim2.new(1, -28, 0, 20)
         nTitle.Font = Enum.Font.GothamBold
         nTitle.Text = title
         nTitle.TextColor3 = Colors.Accent
@@ -68,8 +78,8 @@ function CHRFLib:CreateWindow(hubName)
 
         local nContent = Instance.new("TextLabel", notif)
         nContent.BackgroundTransparency = 1
-        nContent.Position = UDim2.new(0, 10, 0, 25)
-        nContent.Size = UDim2.new(1, -20, 0, 30)
+        nContent.Position = UDim2.new(0, 18, 0, 28)
+        nContent.Size = UDim2.new(1, -28, 0, 30)
         nContent.Font = Enum.Font.GothamSemibold
         nContent.Text = content
         nContent.TextColor3 = Colors.TextMain
@@ -78,13 +88,15 @@ function CHRFLib:CreateWindow(hubName)
         nContent.TextWrapped = true
         nContent.TextTransparency = 1
 
-        TweenService:Create(notif, TweenInfo.new(0.4, Enum.EasingStyle.Quint), {BackgroundTransparency = 0}):Play()
+        TweenService:Create(notif, TweenInfo.new(0.4, Enum.EasingStyle.Quint), {BackgroundTransparency = 0.1}):Play()
+        TweenService:Create(sideBar, TweenInfo.new(0.4), {BackgroundTransparency = 0}):Play()
         TweenService:Create(nStroke, TweenInfo.new(0.4), {Transparency = 0}):Play()
         TweenService:Create(nTitle, TweenInfo.new(0.4), {TextTransparency = 0}):Play()
         TweenService:Create(nContent, TweenInfo.new(0.4), {TextTransparency = 0}):Play()
         
         task.delay(time, function()
             local tOut = TweenService:Create(notif, TweenInfo.new(0.4, Enum.EasingStyle.Quint), {BackgroundTransparency = 1})
+            TweenService:Create(sideBar, TweenInfo.new(0.4), {BackgroundTransparency = 1}):Play()
             TweenService:Create(nStroke, TweenInfo.new(0.4), {Transparency = 1}):Play()
             TweenService:Create(nTitle, TweenInfo.new(0.4), {TextTransparency = 1}):Play()
             TweenService:Create(nContent, TweenInfo.new(0.4), {TextTransparency = 1}):Play()
@@ -101,7 +113,7 @@ function CHRFLib:CreateWindow(hubName)
     IntroFrame.Size = UDim2.new(0, 0, 0, 0) 
     IntroFrame.BackgroundColor3 = Colors.Background
     IntroFrame.ClipsDescendants = true
-    Instance.new("UICorner", IntroFrame).CornerRadius = UDim.new(0, 8)
+    Instance.new("UICorner", IntroFrame).CornerRadius = UDim.new(0, 10)
     local IntroStroke = Instance.new("UIStroke", IntroFrame)
     IntroStroke.Color = Colors.Accent
     IntroStroke.Thickness = 2
@@ -116,7 +128,7 @@ function CHRFLib:CreateWindow(hubName)
     IntroTitle.TextColor3 = Colors.TextMain
     IntroTitle.TextScaled = true 
     local TitleConstraint = Instance.new("UITextSizeConstraint", IntroTitle)
-    TitleConstraint.MaxTextSize = 20
+    TitleConstraint.MaxTextSize = 22
     TitleConstraint.MinTextSize = 10
 
     local IntroSub = Instance.new("TextLabel", IntroFrame)
@@ -127,6 +139,16 @@ function CHRFLib:CreateWindow(hubName)
     IntroSub.Text = "Premium Sürüm Yükleniyor..."
     IntroSub.TextColor3 = Colors.TextMuted
     IntroSub.TextSize = 13
+
+    -- YENİ: Geliştirici Yazısı
+    local DevLabel = Instance.new("TextLabel", IntroFrame)
+    DevLabel.BackgroundTransparency = 1
+    DevLabel.Size = UDim2.new(1, 0, 0, 15)
+    DevLabel.Position = UDim2.new(0, 0, 0, 85)
+    DevLabel.Font = Enum.Font.Gotham
+    DevLabel.Text = "Developers: iWeeKs, Tonyalı, Samaras"
+    DevLabel.TextColor3 = Colors.Accent
+    DevLabel.TextSize = 11
 
     local LoadBg = Instance.new("Frame", IntroFrame)
     LoadBg.BackgroundColor3 = Colors.ElementBg
@@ -148,23 +170,23 @@ function CHRFLib:CreateWindow(hubName)
     MainWhiteFrame.Position = UDim2.new(0.5, 0, 0.5, 0)
     MainWhiteFrame.Size = UDim2.new(0, 0, 0, 0)
     MainWhiteFrame.Visible = false 
-    Instance.new("UICorner", MainWhiteFrame).CornerRadius = UDim.new(0, 8)
+    Instance.new("UICorner", MainWhiteFrame).CornerRadius = UDim.new(0, 10)
     
     local Shadow = Instance.new("ImageLabel", MainWhiteFrame)
     Shadow.BackgroundTransparency = 1
-    Shadow.Position = UDim2.new(0, -15, 0, -15)
-    Shadow.Size = UDim2.new(1, 30, 1, 30)
+    Shadow.Position = UDim2.new(0, -25, 0, -25)
+    Shadow.Size = UDim2.new(1, 50, 1, 50)
     Shadow.ZIndex = -5
     Shadow.Image = "rbxassetid://1316045217"
     Shadow.ImageColor3 = Color3.new(0, 0, 0)
-    Shadow.ImageTransparency = 0.4
+    Shadow.ImageTransparency = 0.5
     Shadow.ScaleType = Enum.ScaleType.Slice
     Shadow.SliceCenter = Rect.new(10, 10, 118, 118)
 
     local MainGradient = Instance.new("UIGradient", MainWhiteFrame)
     MainGradient.Color = ColorSequence.new{
         ColorSequenceKeypoint.new(0, Colors.Accent),
-        ColorSequenceKeypoint.new(1, Color3.fromRGB(80, 10, 20))
+        ColorSequenceKeypoint.new(1, Colors.AccentDark)
     }
     MainGradient.Rotation = 45
 
@@ -173,7 +195,7 @@ function CHRFLib:CreateWindow(hubName)
     MainWhiteFrame_2.BorderSizePixel = 0
     MainWhiteFrame_2.Position = UDim2.new(0, 2, 0, 2)
     MainWhiteFrame_2.Size = UDim2.new(1, -4, 1, -4)
-    Instance.new("UICorner", MainWhiteFrame_2).CornerRadius = UDim.new(0, 6)
+    Instance.new("UICorner", MainWhiteFrame_2).CornerRadius = UDim.new(0, 8)
 
     local TooltipLabel = Instance.new("TextLabel", MainWhiteFrame_2)
     TooltipLabel.BackgroundColor3 = Colors.Accent
@@ -199,7 +221,7 @@ function CHRFLib:CreateWindow(hubName)
     end
 
     task.spawn(function()
-        local t1 = TweenService:Create(IntroFrame, TweenInfo.new(0.5, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {Size = UDim2.new(0, 480, 0, 140)})
+        local t1 = TweenService:Create(IntroFrame, TweenInfo.new(0.5, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {Size = UDim2.new(0, 480, 0, 160)}) -- Boyut biraz artırıldı (Yazılar sığsın diye)
         TweenService:Create(IntroStroke, TweenInfo.new(0.5), {Transparency = 0}):Play()
         t1:Play()
         t1.Completed:Wait()
@@ -221,15 +243,15 @@ function CHRFLib:CreateWindow(hubName)
         
         MainWhiteFrame.Visible = true
         TweenService:Create(MainWhiteFrame, TweenInfo.new(0.6, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
-            Size = UDim2.new(0, 528, 0, 310),
-            Position = UDim2.new(0.5, -264, 0.5, -155)
+            Size = UDim2.new(0, 540, 0, 330), -- Menü biraz daha geniş ve yüksek yapıldı (Modern duruş)
+            Position = UDim2.new(0.5, -270, 0.5, -165)
         }):Play()
     end)
 
     local tabFrame = Instance.new("Frame", MainWhiteFrame_2)
     tabFrame.BackgroundColor3 = Colors.TabMenu
-    tabFrame.Position = UDim2.new(0, 5, 0, 5)
-    tabFrame.Size = UDim2.new(0, 120, 1, -10)
+    tabFrame.Position = UDim2.new(0, 6, 0, 6)
+    tabFrame.Size = UDim2.new(0, 125, 1, -12)
     Instance.new("UICorner", tabFrame).CornerRadius = UDim.new(0, 6)
     local tabStroke = Instance.new("UIStroke", tabFrame)
     tabStroke.Color = Colors.Stroke
@@ -237,21 +259,21 @@ function CHRFLib:CreateWindow(hubName)
     local tabList = Instance.new("UIListLayout", tabFrame)
     tabList.HorizontalAlignment = Enum.HorizontalAlignment.Center
     tabList.SortOrder = Enum.SortOrder.LayoutOrder
-    tabList.Padding = UDim.new(0, 5)
+    tabList.Padding = UDim.new(0, 6)
     local tabPadd = Instance.new("UIPadding", tabFrame)
-    tabPadd.PaddingTop = UDim.new(0, 8)
+    tabPadd.PaddingTop = UDim.new(0, 10)
 
     local header = Instance.new("Frame", MainWhiteFrame_2)
     header.Name = "TopBar"
     header.BackgroundColor3 = Colors.Accent
-    header.Position = UDim2.new(0, 130, 0, 5)
-    header.Size = UDim2.new(1, -135, 0, 40)
+    header.Position = UDim2.new(0, 137, 0, 6)
+    header.Size = UDim2.new(1, -143, 0, 42)
     Instance.new("UICorner", header).CornerRadius = UDim.new(0, 6)
     
     local HeaderGradient = Instance.new("UIGradient", header)
     HeaderGradient.Color = ColorSequence.new{
         ColorSequenceKeypoint.new(0, Colors.Accent),
-        ColorSequenceKeypoint.new(1, Color3.fromRGB(80, 10, 20))
+        ColorSequenceKeypoint.new(1, Colors.AccentDark)
     }
 
     local libTitle = Instance.new("TextLabel", header)
@@ -280,7 +302,7 @@ function CHRFLib:CreateWindow(hubName)
     searchBox.Text = ""
     searchBox.TextColor3 = Colors.TextMain
     searchBox.TextSize = 13
-    Instance.new("UICorner", searchBox).CornerRadius = UDim.new(0, 4)
+    Instance.new("UICorner", searchBox).CornerRadius = UDim.new(0, 6)
     local searchStroke = Instance.new("UIStroke", searchBox)
     searchStroke.Color = Colors.Accent
     searchStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
@@ -293,8 +315,8 @@ function CHRFLib:CreateWindow(hubName)
 
     local elementContainer = Instance.new("Frame", MainWhiteFrame_2)
     elementContainer.BackgroundColor3 = Colors.Background
-    elementContainer.Position = UDim2.new(0, 130, 0, 50)
-    elementContainer.Size = UDim2.new(1, -135, 1, -55)
+    elementContainer.Position = UDim2.new(0, 137, 0, 54)
+    elementContainer.Size = UDim2.new(1, -143, 1, -60)
     elementContainer.BackgroundTransparency = 1
     local pagesFolder = Instance.new("Folder", elementContainer)
     
@@ -305,7 +327,7 @@ function CHRFLib:CreateWindow(hubName)
     searchTab.Visible = false
     local searchList = Instance.new("UIListLayout", searchTab)
     searchList.SortOrder = Enum.SortOrder.LayoutOrder
-    searchList.Padding = UDim.new(0, 6)
+    searchList.Padding = UDim.new(0, 8)
     
     local ActivePage = nil
     local isSearchOpen = false
@@ -359,7 +381,7 @@ function CHRFLib:CreateWindow(hubName)
     resizeHandle.TextColor3 = Colors.TextMuted
     resizeHandle.TextSize = 14
     
-    local isResizing, dragStart, startSize = false, nil, UDim2.new(0, 528, 0, 310)
+    local isResizing, dragStart, startSize = false, nil, UDim2.new(0, 540, 0, 330)
     local Draggable, DragMousePosition, FramePosition = false, nil, nil
     local isDraggingMin, minDragStart = false, nil
 
@@ -480,7 +502,7 @@ function CHRFLib:CreateWindow(hubName)
             if input.UserInputType == Enum.UserInputType.MouseButton1 then psDrag = false end
         end)
 
-        Instance.new("UICorner", CustomPlayerSelector).CornerRadius = UDim.new(0, 6)
+        Instance.new("UICorner", CustomPlayerSelector).CornerRadius = UDim.new(0, 8)
         local CPSStroke = Instance.new("UIStroke", CustomPlayerSelector)
         CPSStroke.Color = Colors.Accent
         CPSStroke.Thickness = 2
@@ -517,7 +539,7 @@ function CHRFLib:CreateWindow(hubName)
         CPSSearch.TextSize = 13
         CPSSearch.TextXAlignment = Enum.TextXAlignment.Left
         CPSSearch.ZIndex = 9999999
-        Instance.new("UICorner", CPSSearch).CornerRadius = UDim.new(0, 4)
+        Instance.new("UICorner", CPSSearch).CornerRadius = UDim.new(0, 6)
         local searchStroke = Instance.new("UIStroke", CPSSearch)
         searchStroke.Color = Colors.Stroke
 
@@ -525,7 +547,7 @@ function CHRFLib:CreateWindow(hubName)
         CPSScroll.Size = UDim2.new(1, -20, 1, -95)
         CPSScroll.Position = UDim2.new(0, 10, 0, 85)
         CPSScroll.BackgroundTransparency = 1
-        CPSScroll.ScrollBarThickness = 6
+        CPSScroll.ScrollBarThickness = 5
         CPSScroll.ScrollBarImageColor3 = Colors.Accent
         CPSScroll.ZIndex = 9999999
 
@@ -558,6 +580,10 @@ function CHRFLib:CreateWindow(hubName)
                         btn.ZIndex = 9999999
                         Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 4)
                         
+                        -- HOVER EFEKTİ
+                        btn.MouseEnter:Connect(function() TweenService:Create(btn, TweenInfo.new(0.2), {BackgroundColor3 = Colors.Accent}):Play() end)
+                        btn.MouseLeave:Connect(function() TweenService:Create(btn, TweenInfo.new(0.2), {BackgroundColor3 = Colors.Background}):Play() end)
+
                         btn.MouseButton1Click:Connect(function()
                             CustomPlayerSelector.Visible = false
                             if callback then callback(p.Name) end
@@ -590,7 +616,7 @@ function CHRFLib:CreateWindow(hubName)
         tabBtn.TextColor3 = Colors.TextMuted
         tabBtn.TextSize = 13
         tabBtn.AutoButtonColor = false
-        Instance.new("UICorner", tabBtn).CornerRadius = UDim.new(0, 5)
+        Instance.new("UICorner", tabBtn).CornerRadius = UDim.new(0, 6)
         local btnStroke = Instance.new("UIStroke", tabBtn)
         btnStroke.Color = Colors.Stroke
         btnStroke.Thickness = 1
@@ -604,7 +630,7 @@ function CHRFLib:CreateWindow(hubName)
 
         local pageItemList = Instance.new("UIListLayout", newPage)
         pageItemList.SortOrder = Enum.SortOrder.LayoutOrder
-        pageItemList.Padding = UDim.new(0, 6)
+        pageItemList.Padding = UDim.new(0, 8)
 
         local UIPadding = Instance.new("UIPadding", newPage)
         UIPadding.PaddingRight = UDim.new(0, 5)
@@ -649,7 +675,7 @@ function CHRFLib:CreateWindow(hubName)
             local frame = Instance.new("Frame")
             frame.BackgroundColor3 = Colors.ElementBg
             frame.Size = UDim2.new(1, 0, 0, height)
-            Instance.new("UICorner", frame).CornerRadius = UDim.new(0, 5)
+            Instance.new("UICorner", frame).CornerRadius = UDim.new(0, 6)
             Instance.new("UIStroke", frame).Color = Colors.Stroke
             if desc then
                 frame.MouseEnter:Connect(function() ShowTooltip(desc) end)
@@ -659,7 +685,7 @@ function CHRFLib:CreateWindow(hubName)
         end
 
         function ElementHandler:TextLabel(labelText)
-            local frame = CreateBaseFrame(30)
+            local frame = CreateBaseFrame(35)
             frame.Parent = newPage
             local label = Instance.new("TextLabel", frame)
             label.BackgroundTransparency = 1
@@ -674,7 +700,7 @@ function CHRFLib:CreateWindow(hubName)
         end
 
         function ElementHandler:TextButton(buttonText, buttonInfo, callback, desc)
-            local frame = CreateBaseFrame(40, desc)
+            local frame = CreateBaseFrame(45, desc)
             frame.Parent = newPage
             local info = Instance.new("TextLabel", frame)
             info.BackgroundTransparency = 1
@@ -687,19 +713,31 @@ function CHRFLib:CreateWindow(hubName)
             info.TextXAlignment = Enum.TextXAlignment.Left
             local btn = Instance.new("TextButton", frame)
             btn.BackgroundColor3 = Colors.Accent
-            btn.Position = UDim2.new(1, -90, 0.5, -12)
-            btn.Size = UDim2.new(0, 80, 0, 24)
+            btn.Position = UDim2.new(1, -100, 0.5, -14)
+            btn.Size = UDim2.new(0, 90, 0, 28)
             btn.Font = Enum.Font.GothamBold
             btn.Text = buttonInfo
             btn.TextColor3 = Colors.TextMain
             btn.TextSize = 12
-            Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 4)
-            btn.MouseButton1Click:Connect(callback)
+            btn.AutoButtonColor = false
+            Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 6)
+            
+            -- HOVER EFEKTİ
+            btn.MouseEnter:Connect(function() TweenService:Create(btn, TweenInfo.new(0.2), {BackgroundColor3 = Colors.AccentDark}):Play() end)
+            btn.MouseLeave:Connect(function() TweenService:Create(btn, TweenInfo.new(0.2), {BackgroundColor3 = Colors.Accent}):Play() end)
+            
+            btn.MouseButton1Click:Connect(function()
+                -- Tıklama efekti
+                TweenService:Create(btn, TweenInfo.new(0.1), {Size = UDim2.new(0, 85, 0, 26), Position = UDim2.new(1, -97, 0.5, -13)}):Play()
+                task.wait(0.1)
+                TweenService:Create(btn, TweenInfo.new(0.1), {Size = UDim2.new(0, 90, 0, 28), Position = UDim2.new(1, -100, 0.5, -14)}):Play()
+                callback()
+            end)
             AllElements[frame] = {Name = buttonText, OriginalParent = newPage}
         end
 
         function ElementHandler:Toggle(togInfo, callback, default, desc)
-            local frame = CreateBaseFrame(40, desc)
+            local frame = CreateBaseFrame(45, desc)
             frame.Parent = newPage
             local info = Instance.new("TextLabel", frame)
             info.BackgroundTransparency = 1
@@ -712,15 +750,15 @@ function CHRFLib:CreateWindow(hubName)
             info.TextXAlignment = Enum.TextXAlignment.Left
             local toggleBtn = Instance.new("TextButton", frame)
             toggleBtn.BackgroundColor3 = default and Colors.Accent or Colors.Background
-            toggleBtn.Position = UDim2.new(1, -50, 0.5, -12)
-            toggleBtn.Size = UDim2.new(0, 40, 0, 24)
+            toggleBtn.Position = UDim2.new(1, -55, 0.5, -12)
+            toggleBtn.Size = UDim2.new(0, 45, 0, 24)
             toggleBtn.Text = ""
             Instance.new("UICorner", toggleBtn).CornerRadius = UDim.new(0, 12)
             Instance.new("UIStroke", toggleBtn).Color = Colors.Stroke
             local indicator = Instance.new("Frame", toggleBtn)
             indicator.BackgroundColor3 = default and Colors.TextMain or Colors.TextMuted
-            indicator.Size = UDim2.new(0, 16, 0, 16)
-            indicator.Position = default and UDim2.new(1, -20, 0.5, -8) or UDim2.new(0, 4, 0.5, -8)
+            indicator.Size = UDim2.new(0, 18, 0, 18)
+            indicator.Position = default and UDim2.new(1, -21, 0.5, -9) or UDim2.new(0, 3, 0.5, -9)
             Instance.new("UICorner", indicator).CornerRadius = UDim.new(1, 0)
 
             local toggled = default or false
@@ -729,18 +767,18 @@ function CHRFLib:CreateWindow(hubName)
                 toggled = not toggled
                 callback(toggled)
                 if toggled then
-                    TweenService:Create(toggleBtn, TweenInfo.new(0.2), {BackgroundColor3 = Colors.Accent}):Play()
-                    TweenService:Create(indicator, TweenInfo.new(0.2), {Position = UDim2.new(1, -20, 0.5, -8), BackgroundColor3 = Colors.TextMain}):Play()
+                    TweenService:Create(toggleBtn, TweenInfo.new(0.3, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {BackgroundColor3 = Colors.Accent}):Play()
+                    TweenService:Create(indicator, TweenInfo.new(0.3, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {Position = UDim2.new(1, -21, 0.5, -9), BackgroundColor3 = Colors.TextMain}):Play()
                 else
-                    TweenService:Create(toggleBtn, TweenInfo.new(0.2), {BackgroundColor3 = Colors.Background}):Play()
-                    TweenService:Create(indicator, TweenInfo.new(0.2), {Position = UDim2.new(0, 4, 0.5, -8), BackgroundColor3 = Colors.TextMuted}):Play()
+                    TweenService:Create(toggleBtn, TweenInfo.new(0.3, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {BackgroundColor3 = Colors.Background}):Play()
+                    TweenService:Create(indicator, TweenInfo.new(0.3, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {Position = UDim2.new(0, 3, 0.5, -9), BackgroundColor3 = Colors.TextMuted}):Play()
                 end 
             end)
             AllElements[frame] = {Name = togInfo, OriginalParent = newPage}
         end
 
         function ElementHandler:Slider(sliderInfo, min, max, callback, default, desc)
-            local frame = CreateBaseFrame(50, desc)
+            local frame = CreateBaseFrame(55, desc)
             frame.Parent = newPage
             local info = Instance.new("TextLabel", frame)
             info.BackgroundTransparency = 1
@@ -762,8 +800,8 @@ function CHRFLib:CreateWindow(hubName)
             valLabel.TextXAlignment = Enum.TextXAlignment.Right
             local sliderBg = Instance.new("TextButton", frame)
             sliderBg.BackgroundColor3 = Colors.Background
-            sliderBg.Position = UDim2.new(0, 10, 0, 30)
-            sliderBg.Size = UDim2.new(1, -20, 0, 8)
+            sliderBg.Position = UDim2.new(0, 10, 0, 32)
+            sliderBg.Size = UDim2.new(1, -20, 0, 10)
             sliderBg.Text = ""
             Instance.new("UICorner", sliderBg).CornerRadius = UDim.new(1, 0)
             local defScale = ((default or min) - min) / (max - min)
@@ -778,7 +816,7 @@ function CHRFLib:CreateWindow(hubName)
             local function update(input)
                 local relativeX = math.clamp(input.Position.X - sliderBg.AbsolutePosition.X, 0, sliderBg.AbsoluteSize.X)
                 local scale = relativeX / sliderBg.AbsoluteSize.X
-                sliderFill.Size = UDim2.new(scale, 0, 1, 0)
+                TweenService:Create(sliderFill, TweenInfo.new(0.1), {Size = UDim2.new(scale, 0, 1, 0)}):Play()
                 local value = math.floor(min + ((max - min) * scale))
                 valLabel.Text = value.."/"..max
                 pcall(function() callback(value) end)
@@ -797,12 +835,12 @@ function CHRFLib:CreateWindow(hubName)
         end
 
         function ElementHandler:Dropdown(dInfo, list, callback, default, desc)
-            local frame = CreateBaseFrame(40, desc)
+            local frame = CreateBaseFrame(45, desc)
             frame.Parent = newPage
             frame.ClipsDescendants = true
             local btn = Instance.new("TextButton", frame)
             btn.BackgroundTransparency = 1
-            btn.Size = UDim2.new(1, 0, 0, 40)
+            btn.Size = UDim2.new(1, 0, 0, 45)
             btn.Font = Enum.Font.GothamSemibold
             btn.Text = "   "..dInfo..(default and (": "..default) or "")
             btn.TextColor3 = Colors.TextMain
@@ -821,43 +859,47 @@ function CHRFLib:CreateWindow(hubName)
             btn.MouseButton1Click:Connect(function()
                 isDropped = not isDropped
                 if isDropped then
-                    TweenService:Create(frame, TweenInfo.new(0.2), {Size = UDim2.new(1, 0, 0, 40 + (#list * 30))}):Play()
-                    TweenService:Create(icon, TweenInfo.new(0.2), {Rotation = 180}):Play()
+                    TweenService:Create(frame, TweenInfo.new(0.3, Enum.EasingStyle.Quint), {Size = UDim2.new(1, 0, 0, 45 + (#list * 32))}):Play()
+                    TweenService:Create(icon, TweenInfo.new(0.3, Enum.EasingStyle.Quint), {Rotation = 180}):Play()
                 else
-                    TweenService:Create(frame, TweenInfo.new(0.2), {Size = UDim2.new(1, 0, 0, 40)}):Play()
-                    TweenService:Create(icon, TweenInfo.new(0.2), {Rotation = 0}):Play()
+                    TweenService:Create(frame, TweenInfo.new(0.3, Enum.EasingStyle.Quint), {Size = UDim2.new(1, 0, 0, 45)}):Play()
+                    TweenService:Create(icon, TweenInfo.new(0.3, Enum.EasingStyle.Quint), {Rotation = 0}):Play()
                 end
             end)
 
             for _, item in ipairs(list) do
                 local option = Instance.new("TextButton", frame)
                 option.BackgroundColor3 = Colors.Background
-                option.Size = UDim2.new(1, -10, 0, 28)
+                option.Size = UDim2.new(1, -12, 0, 28)
                 option.Font = Enum.Font.Gotham
                 option.Text = item
                 option.TextColor3 = Colors.TextMuted
                 option.TextSize = 12
-                Instance.new("UICorner", option).CornerRadius = UDim.new(0, 4)
+                option.AutoButtonColor = false
+                Instance.new("UICorner", option).CornerRadius = UDim.new(0, 6)
                 
+                option.MouseEnter:Connect(function() TweenService:Create(option, TweenInfo.new(0.2), {TextColor3 = Colors.TextMain}):Play() end)
+                option.MouseLeave:Connect(function() TweenService:Create(option, TweenInfo.new(0.2), {TextColor3 = Colors.TextMuted}):Play() end)
+
                 option.MouseButton1Click:Connect(function()
                     callback(item)
                     btn.Text = "   "..dInfo..": "..item
                     isDropped = false
-                    TweenService:Create(frame, TweenInfo.new(0.2), {Size = UDim2.new(1, 0, 0, 40)}):Play()
-                    TweenService:Create(icon, TweenInfo.new(0.2), {Rotation = 0}):Play()
+                    TweenService:Create(frame, TweenInfo.new(0.3, Enum.EasingStyle.Quint), {Size = UDim2.new(1, 0, 0, 45)}):Play()
+                    TweenService:Create(icon, TweenInfo.new(0.3, Enum.EasingStyle.Quint), {Rotation = 0}):Play()
                 end)
             end
             AllElements[frame] = {Name = dInfo, OriginalParent = newPage}
         end
 
         function ElementHandler:ColorPicker(pInfo, defaultColor, callback, desc)
-            local frame = CreateBaseFrame(40, desc)
+            local frame = CreateBaseFrame(45, desc)
             frame.Parent = newPage
             frame.ClipsDescendants = true
             
             local btn = Instance.new("TextButton", frame)
             btn.BackgroundTransparency = 1
-            btn.Size = UDim2.new(1, 0, 0, 40)
+            btn.Size = UDim2.new(1, 0, 0, 45)
             btn.Font = Enum.Font.GothamSemibold
             btn.Text = "   "..pInfo
             btn.TextColor3 = Colors.TextMain
@@ -865,8 +907,8 @@ function CHRFLib:CreateWindow(hubName)
             btn.TextXAlignment = Enum.TextXAlignment.Left
 
             local displayColor = Instance.new("Frame", btn)
-            displayColor.Size = UDim2.new(0, 30, 0, 16)
-            displayColor.Position = UDim2.new(1, -40, 0.5, -8)
+            displayColor.Size = UDim2.new(0, 35, 0, 18)
+            displayColor.Position = UDim2.new(1, -45, 0.5, -9)
             displayColor.BackgroundColor3 = defaultColor or Color3.new(1,1,1)
             Instance.new("UICorner", displayColor).CornerRadius = UDim.new(0, 4)
             Instance.new("UIStroke", displayColor).Color = Colors.Stroke
@@ -874,7 +916,7 @@ function CHRFLib:CreateWindow(hubName)
             local isDropped = false
             btn.MouseButton1Click:Connect(function()
                 isDropped = not isDropped
-                TweenService:Create(frame, TweenInfo.new(0.2), {Size = UDim2.new(1, 0, 0, isDropped and 130 or 40)}):Play()
+                TweenService:Create(frame, TweenInfo.new(0.3, Enum.EasingStyle.Quint), {Size = UDim2.new(1, 0, 0, isDropped and 140 or 45)}):Play()
             end)
 
             local function createColorSlider(yPos, colorName, maxC)
@@ -889,8 +931,8 @@ function CHRFLib:CreateWindow(hubName)
                 
                 local sBg = Instance.new("TextButton", frame)
                 sBg.BackgroundColor3 = Colors.Background
-                sBg.Size = UDim2.new(1, -50, 0, 8)
-                sBg.Position = UDim2.new(0, 35, 0, yPos+6)
+                sBg.Size = UDim2.new(1, -50, 0, 10)
+                sBg.Position = UDim2.new(0, 35, 0, yPos+5)
                 sBg.Text = ""
                 Instance.new("UICorner", sBg).CornerRadius = UDim.new(1, 0)
                 local sFill = Instance.new("Frame", sBg)
@@ -900,9 +942,9 @@ function CHRFLib:CreateWindow(hubName)
                 return sBg, sFill
             end
 
-            local rBg, rFill = createColorSlider(50, "R", Color3.fromRGB(255, 50, 50))
-            local gBg, gFill = createColorSlider(75, "G", Color3.fromRGB(50, 255, 50))
-            local bBg, bFill = createColorSlider(100, "B", Color3.fromRGB(50, 100, 255))
+            local rBg, rFill = createColorSlider(55, "R", Color3.fromRGB(255, 50, 50))
+            local gBg, gFill = createColorSlider(80, "G", Color3.fromRGB(50, 255, 50))
+            local bBg, bFill = createColorSlider(105, "B", Color3.fromRGB(50, 100, 255))
             local currentColor = defaultColor or Color3.new(1,1,1)
             local uis = game:GetService("UserInputService")
 
@@ -913,7 +955,7 @@ function CHRFLib:CreateWindow(hubName)
                 uis.InputChanged:Connect(function(inp)
                     if isS and inp.UserInputType == Enum.UserInputType.MouseMovement then
                         local scale = math.clamp((inp.Position.X - bg.AbsolutePosition.X) / bg.AbsoluteSize.X, 0, 1)
-                        fill.Size = UDim2.new(scale, 0, 1, 0)
+                        TweenService:Create(fill, TweenInfo.new(0.1), {Size = UDim2.new(scale, 0, 1, 0)}):Play()
                         if colorIndex == 1 then currentColor = Color3.new(scale, currentColor.G, currentColor.B)
                         elseif colorIndex == 2 then currentColor = Color3.new(currentColor.R, scale, currentColor.B)
                         else currentColor = Color3.new(currentColor.R, currentColor.G, scale) end
@@ -930,6 +972,42 @@ function CHRFLib:CreateWindow(hubName)
 
         return ElementHandler
     end
+
+    -- DISCORD REKLAM SİSTEMİ (1 DAKİKADA BİR)
+    task.spawn(function()
+        task.wait(5) -- İlk açılıştan 5 saniye sonra ilk reklamı yolla
+        while true do
+            CHRFLib:MakeNotification({
+                Title = "Discord Topluluğumuz", 
+                Content = "En güncel hileler ve destek için Discord'a katıl!\n\nLink: discord.gg/JdPvbjRswP", 
+                Time = 6
+            })
+            task.wait(60) -- 1 Dakikada bir tekrarla
+        end
+    end)
+    
+    -- KALICI DİSCORD BUTONU (Sağ Altta)
+    local dcBtn = Instance.new("TextButton", ScreenGui)
+    dcBtn.BackgroundColor3 = Color3.fromRGB(88, 101, 242) -- Blurple
+    dcBtn.Size = UDim2.new(0, 180, 0, 35)
+    dcBtn.Position = UDim2.new(1, -190, 1, -25)
+    dcBtn.AnchorPoint = Vector2.new(0, 1)
+    dcBtn.Font = Enum.Font.GothamBold
+    dcBtn.Text = "Discord'a Katıl"
+    dcBtn.TextColor3 = Color3.new(1,1,1)
+    dcBtn.TextSize = 13
+    Instance.new("UICorner", dcBtn).CornerRadius = UDim.new(0, 8)
+    
+    dcBtn.MouseEnter:Connect(function() TweenService:Create(dcBtn, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(71, 82, 196)}):Play() end)
+    dcBtn.MouseLeave:Connect(function() TweenService:Create(dcBtn, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(88, 101, 242)}):Play() end)
+    
+    dcBtn.MouseButton1Click:Connect(function()
+        if setclipboard then
+            setclipboard("https://discord.gg/JdPvbjRswP")
+            CHRFLib:MakeNotification({Title = "Discord", Content = "Discord linki kopyalandı! (Panoya kopyalandı)", Time = 3})
+        end
+    end)
+
     return SectionHandler
 end 
 return CHRFLib
