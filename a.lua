@@ -866,7 +866,8 @@ function CHRFLib:CreateWindow(hubName)
             sliderFill.BackgroundColor3 = Colors.Accent
             sliderFill.Size = UDim2.new(defScale, 0, 1, 0)
             Instance.new("UICorner", sliderFill).CornerRadius = UDim.new(1, 0)
-            local mouse = game.Players.LocalPlayer:GetMouse()
+            
+            -- Hata yaratan mouse değişkeni silindi
             local uis = game:GetService("UserInputService")
             local isSliding = false
 
