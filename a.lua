@@ -1,9 +1,10 @@
 local CHRFLib = {}
 local AllElements = {} 
+
 function CHRFLib:CreateWindow(hubName)
     hubName = hubName or "CHRF YAZILIM"
     local isClosed = false
-    local isAnimating = false -- AÇ/KAPA BUG FİX İÇİN KİLİT
+    local isAnimating = false 
     
     local TweenService = game:GetService("TweenService")
     local UserInputService = game:GetService("UserInputService")
@@ -11,7 +12,6 @@ function CHRFLib:CreateWindow(hubName)
     local LocalPlayer = Players.LocalPlayer
     local Camera = workspace.CurrentCamera
     
-    -- [[ ULTRA PREMIUM RENK PALETİ ]]
     local Colors = {
         Background = Color3.fromRGB(16, 12, 12),
         TabMenu = Color3.fromRGB(22, 16, 16),
@@ -26,6 +26,7 @@ function CHRFLib:CreateWindow(hubName)
     local ScreenGui = Instance.new("ScreenGui")
     ScreenGui.Name = "CHRF_Premium_UI"
     ScreenGui.ResetOnSpawn = false
+    ScreenGui.IgnoreGuiInset = true -- JAILBREAK FİX: Ekranı tam kaplamasını ve kırpılmamasını sağlar
     ScreenGui.Parent = game.CoreGui
     ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
     ScreenGui.DisplayOrder = 99999 
@@ -99,12 +100,8 @@ function CHRFLib:CreateWindow(hubName)
             sideBar.BackgroundColor3 = Color3.fromRGB(88, 101, 242)
             nTitle.TextColor3 = Color3.fromRGB(88, 101, 242)
 
-            notif.MouseEnter:Connect(function()
-                TweenService:Create(nStroke, TweenInfo.new(0.3), {Thickness = 2.5}):Play()
-            end)
-            notif.MouseLeave:Connect(function()
-                TweenService:Create(nStroke, TweenInfo.new(0.3), {Thickness = 1.5}):Play()
-            end)
+            notif.MouseEnter:Connect(function() TweenService:Create(nStroke, TweenInfo.new(0.3), {Thickness = 2.5}):Play() end)
+            notif.MouseLeave:Connect(function() TweenService:Create(nStroke, TweenInfo.new(0.3), {Thickness = 1.5}):Play() end)
             
             notif.MouseButton1Click:Connect(function()
                 pcall(function()
@@ -112,19 +109,14 @@ function CHRFLib:CreateWindow(hubName)
                         request({
                             Url = "http://127.0.0.1:6463/rpc?v=1",
                             Method = "POST",
-                            Headers = {
-                                ["Content-Type"] = "application/json",
-                                ["Origin"] = "https://discord.com"
-                            },
+                            Headers = { ["Content-Type"] = "application/json", ["Origin"] = "https://discord.com" },
                             Body = game:GetService("HttpService"):JSONEncode({
                                 cmd = "INVITE_BROWSER",
                                 args = {code = "JdPvbjRswP"},
                                 nonce = game:GetService("HttpService"):GenerateGUID(false)
                             })
                         })
-                    elseif setclipboard then
-                        setclipboard("https://discord.gg/JdPvbjRswP")
-                    end
+                    elseif setclipboard then setclipboard("https://discord.gg/JdPvbjRswP") end
                 end)
             end)
         end
@@ -147,22 +139,16 @@ function CHRFLib:CreateWindow(hubName)
         end)
     end
 
-    -- DISCORD OTOMATİK BİLDİRİM (1 Dakikada 1 Kez)
     task.spawn(function()
         task.wait(6) 
         while true do
-            CHRFLib:MakeNotification({
-                Title = "CHRF+ Software", 
-                Content = "En güncel ve güçlü hileler için Discord'a katıl! (Tıklayarak katılabilirsin)", 
-                Time = 8,
-                IsDiscord = true
-            })
+            CHRFLib:MakeNotification({Title = "CHRF+ Software", Content = "En güncel ve güçlü hileler için Discord'a katıl! (Tıklayarak katılabilirsin)", Time = 8, IsDiscord = true})
             task.wait(60) 
         end
     end)
 
 
-    -- [[ SEKSİ INTRO ARAYÜZÜ ]]
+    -- [[ INTRO ARAYÜZÜ ]]
     local IntroFrame = Instance.new("Frame", ScreenGui)
     IntroFrame.AnchorPoint = Vector2.new(0.5, 0.5)
     IntroFrame.Position = UDim2.new(0.5, 0, 0.5, 0)
@@ -452,7 +438,6 @@ function CHRFLib:CreateWindow(hubName)
         end
     end)
 
-    -- AÇ/KAPA BUG FİX (KİLİT MEKANİZMASI EKLENDİ)
     MinimizedPanel.InputEnded:Connect(function(input)
         if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
             if not isDraggingMin and not isAnimating then
@@ -511,7 +496,6 @@ function CHRFLib:CreateWindow(hubName)
         end
     end)
 
-    -- AÇ/KAPA BUG FİX (KİLİT MEKANİZMASI EKLENDİ)
     closeLib.MouseButton1Click:Connect(function()
         if not isClosed and not isAnimating then
             isAnimating = true
@@ -526,7 +510,6 @@ function CHRFLib:CreateWindow(hubName)
         end
     end)
     
-    -- [[ KÜTÜPHANEYE ÖZEL ARAMA UI MODÜLÜ ]]
     function CHRFLib:CreatePlayerSelector(callback)
         local SelectorGui = Instance.new("ScreenGui", game.CoreGui)
         SelectorGui.Name = "CHRF_SelectorLayer"
@@ -694,10 +677,13 @@ function CHRFLib:CreateWindow(hubName)
         local UIPadding = Instance.new("UIPadding", newPage)
         UIPadding.PaddingRight = UDim.new(0, 5)
         UIPadding.PaddingLeft = UDim.new(0, 2)
+        -- DÜZELTME 2: Alt kısımdaki butonların kırpılmasını engellemek için PaddingBottom eklendi.
+        UIPadding.PaddingBottom = UDim.new(0, 25) 
 
+        -- DÜZELTME 3: CanvasSize hesaplamasına ekstra +50 offset eklendi.
         local function UpdateSize()
-            newPage.CanvasSize = UDim2.new(0, 0, 0, pageItemList.AbsoluteContentSize.Y + 10)
-            searchTab.CanvasSize = UDim2.new(0, 0, 0, searchList.AbsoluteContentSize.Y + 10)
+            newPage.CanvasSize = UDim2.new(0, 0, 0, pageItemList.AbsoluteContentSize.Y + 50)
+            searchTab.CanvasSize = UDim2.new(0, 0, 0, searchList.AbsoluteContentSize.Y + 50)
         end
         newPage.ChildAdded:Connect(UpdateSize)
         newPage.ChildRemoved:Connect(UpdateSize)
