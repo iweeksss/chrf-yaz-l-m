@@ -1,6 +1,5 @@
 local CHRFLib = {}
 local AllElements = {} 
-
 function CHRFLib:CreateWindow(hubName)
     hubName = hubName or "CHRF YAZILIM"
     local isClosed = false
